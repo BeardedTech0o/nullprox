@@ -1,5 +1,7 @@
 # ProxLink
 
+![ProxLink — homelab control, in your pocket](./public/proxlink-collage.png)
+
 Mobile-first PWA for managing Proxmox VE hosts from your phone. Talks to
 Proxmox over its REST API via API tokens, through a self-hosted backend that
 holds encrypted credentials — meant to run as an LXC on Proxmox itself.
