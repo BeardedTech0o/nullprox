@@ -245,7 +245,16 @@ export default function ConsolePage() {
           style={{ fontSize: 16 }}
         />
         {phase === 'connected' && (
-          <KeyToolbar onPress={(key) => sendKeyRef.current(key)} />
+          <KeyToolbar
+            onPress={(key) => {
+              sendKeyRef.current(key);
+              // Belt-and-suspenders: if the tap still nudged focus off the
+              // terminal/VNC input despite the toolbar button's own
+              // preventDefault guards, put it straight back so the on-screen
+              // keyboard doesn't visibly toggle.
+              showKeyboard();
+            }}
+          />
         )}
         {phase === 'connected' && (
           <button

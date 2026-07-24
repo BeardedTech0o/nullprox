@@ -28,6 +28,7 @@ export default function NodeConsolePage() {
   const zoomRef = useRef<HTMLDivElement>(null);
   const cleanupRef = useRef<() => void>(() => {});
   const sendKeyRef = useRef<(key: ConsoleKey) => void>(() => {});
+  const termRef = useRef<{ focus(): void } | null>(null);
   const [phase, setPhase] = useState<Phase>('connecting');
   const [error, setError] = useState('');
 
@@ -84,6 +85,7 @@ export default function NodeConsolePage() {
         term.loadAddon(fit);
         term.open(zoomRef.current!);
         fit.fit();
+        termRef.current = term;
         const detachPinchZoom = attachPinchZoom(containerRef.current!, zoomRef.current!);
 
         const ws = new WebSocket(wsUrl(conn.cid));
@@ -155,7 +157,17 @@ export default function NodeConsolePage() {
           </span>
         </div>
         {phase === 'connected' && (
-          <KeyToolbar onPress={(key) => sendKeyRef.current(key)} bottomRem={1} />
+          <KeyToolbar
+            onPress={(key) => {
+              sendKeyRef.current(key);
+              // Belt-and-suspenders: if the tap still nudged focus off the
+              // terminal despite the toolbar button's own preventDefault
+              // guards, put it straight back so the on-screen keyboard
+              // doesn't visibly toggle.
+              termRef.current?.focus();
+            }}
+            bottomRem={1}
+          />
         )}
         {phase !== 'connected' && (
           <div className="absolute inset-0 grid place-items-center text-white/80 pointer-events-none">

@@ -34,13 +34,14 @@ export default function KeyToolbar({
           // input currently has it — here that's the terminal's own hidden
           // textarea (or the VNC keyInputRef), which is what the on-screen
           // keyboard is actually attached to. Losing that focus dismisses
-          // the keyboard, then refocusing it on the next tap reopens it,
-          // producing a visible flash of iOS's keyboard + its input
-          // accessory bar on every press. Preventing pointerdown's default
-          // action stops the browser from moving focus to the button at
-          // all, so the terminal stays focused and the keyboard never
-          // toggles — onClick still fires normally afterwards.
+          // the keyboard, then refocusing it on the next tap reopens it, so
+          // the keyboard visibly pops down and back up on every press.
+          // preventDefault on pointerdown alone isn't enough on iOS Safari —
+          // it still assigns focus on the tap. mousedown is the event whose
+          // default action iOS actually honors preventDefault on for this,
+          // so both are guarded here; onClick still fires normally after.
           onPointerDown={(e) => e.preventDefault()}
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => onPress(b.key)}
           aria-label={b.label}
           className="h-11 w-11 rounded-full bg-black/60 text-white grid place-items-center backdrop-blur-sm active:scale-95 transition-transform"
