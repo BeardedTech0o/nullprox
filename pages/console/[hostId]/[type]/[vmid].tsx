@@ -4,6 +4,7 @@ import Icon from '@/components/Icon';
 import { api, pvePath } from '@/lib/client/fetcher';
 import { attachMobileKeyboard } from '@/lib/client/novncKeyboard';
 import { attachFitScale } from '@/lib/client/novncScale';
+import { attachPinchZoom } from '@/lib/client/pinchZoom';
 import type { GuestType } from '@/lib/proxmox/endpoints';
 
 type Phase = 'connecting' | 'connected' | 'error' | 'closed';
@@ -21,17 +22,13 @@ export default function ConsolePage() {
 
   const rootRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef<HTMLDivElement>(null);
   const keyInputRef = useRef<HTMLTextAreaElement>(null);
   const termRef = useRef<{ focus(): void } | null>(null);
   const cleanupRef = useRef<() => void>(() => {});
   const [phase, setPhase] = useState<Phase>('connecting');
   const [error, setError] = useState('');
   const [mode, setMode] = useState<'vnc' | 'term'>('vnc');
-  // TEMPORARY diagnostic overlay for the VNC scale investigation — shows the
-  // live framebuffer/container/scale numbers directly on screen so this can
-  // be screenshotted back without needing desktop devtools. Remove once
-  // root-caused.
-  const [scaleDebug, setScaleDebug] = useState('');
 
   // Neither a VNC canvas nor an xterm viewport is itself a DOM text input, so
   // mobile browsers won't pop up their on-screen keyboard on tap alone. xterm
@@ -51,11 +48,19 @@ export default function ConsolePage() {
   // (off-screen) keyboard-trigger element "in view", which drags the whole
   // console out from under the visible area. Track visualViewport directly
   // and size the root to it, so the console always fits above the keyboard.
+  //
+  // In landscape, the layout viewport is already short, so shrinking further
+  // to clear the keyboard leaves almost nothing to actually see the console
+  // in. There, leave the console at full height and let the keyboard overlap
+  // it instead of squeezing it into a sliver.
   useEffect(() => {
     const root = rootRef.current;
     const vv = typeof window !== 'undefined' ? window.visualViewport : null;
     if (!root || !vv) return;
     const update = () => {
+      const isLandscape = window.innerWidth > window.innerHeight;
+      const keyboardOpen = vv.height < window.innerHeight * 0.75;
+      if (isLandscape && keyboardOpen) return;
       root.style.height = `${vv.height}px`;
       root.style.top = `${vv.offsetTop}px`;
       // Reuses xterm's existing window-resize-driven fit() call; RFB's own
@@ -96,7 +101,7 @@ export default function ConsolePage() {
 
         if (conn.mode === 'vnc') {
           const { default: RFB } = await import('@novnc/novnc');
-          const rfb = new RFB(containerRef.current!, wsUrl(conn.cid), {
+          const rfb = new RFB(zoomRef.current!, wsUrl(conn.cid), {
             credentials: { password: conn.password },
           });
           rfb.scaleViewport = true;
@@ -123,24 +128,14 @@ export default function ConsolePage() {
             ? attachMobileKeyboard(rfb, keyInputRef.current)
             : () => {};
           const detachFitScale = attachFitScale(rfb, containerRef.current!);
-
-          const debugInterval = setInterval(() => {
-            const anyRfb = rfb as any;
-            const d = anyRfb._display;
-            const c = containerRef.current;
-            if (!d || !c) return;
-            const canvas = anyRfb._canvas as HTMLCanvasElement | undefined;
-            setScaleDebug(
-              `fb=${d.width}x${d.height} scale=${Number(d.scale).toFixed(3)} clip=${d.clipViewport} container=${c.clientWidth}x${c.clientHeight} canvasCSS=${canvas?.style.width}x${canvas?.style.height}`,
-            );
-          }, 500);
+          const detachPinchZoom = attachPinchZoom(containerRef.current!, zoomRef.current!);
 
           cleanupRef.current = () => {
             containerRef.current?.removeEventListener('touchstart', focusKeyInput);
             containerRef.current?.removeEventListener('mousedown', focusKeyInput);
             detachKeyboard();
             detachFitScale();
-            clearInterval(debugInterval);
+            detachPinchZoom();
             rfb.disconnect();
           };
         } else {
@@ -156,9 +151,10 @@ export default function ConsolePage() {
           });
           const fit = new FitAddon();
           term.loadAddon(fit);
-          term.open(containerRef.current!);
+          term.open(zoomRef.current!);
           fit.fit();
           termRef.current = term;
+          const detachPinchZoom = attachPinchZoom(containerRef.current!, zoomRef.current!);
 
           const ws = new WebSocket(wsUrl(conn.cid));
           ws.binaryType = 'arraybuffer';
@@ -182,6 +178,7 @@ export default function ConsolePage() {
           window.addEventListener('resize', onResize);
           cleanupRef.current = () => {
             window.removeEventListener('resize', onResize);
+            detachPinchZoom();
             ws.close();
             term.dispose();
           };
@@ -207,7 +204,9 @@ export default function ConsolePage() {
           ref={containerRef}
           className="absolute inset-0 overflow-hidden"
           style={{ top: 'calc(env(safe-area-inset-top) + 4rem)' }}
-        />
+        >
+          <div ref={zoomRef} className="h-full w-full" />
+        </div>
         <div
           className="absolute left-3 flex items-center gap-2 z-10"
           style={{ top: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
@@ -224,14 +223,6 @@ export default function ConsolePage() {
             {type.toUpperCase()} · #{vmid}
           </span>
         </div>
-        {mode === 'vnc' && scaleDebug && (
-          <div
-            className="absolute left-2 right-2 z-10 px-2 py-1 rounded-lg bg-black/70 text-lime-300 text-[10px] font-mono break-all"
-            style={{ top: 'calc(env(safe-area-inset-top) + 3rem)' }}
-          >
-            {scaleDebug}
-          </div>
-        )}
         {/* Off-screen but focusable: gives mobile browsers something to pop
             the on-screen keyboard up for when driving a VNC session (a
             canvas has no text input of its own). Keystrokes typed here are

@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import Icon from '@/components/Icon';
 import { api } from '@/lib/client/fetcher';
+import { attachPinchZoom } from '@/lib/client/pinchZoom';
 
 type Phase = 'connecting' | 'connected' | 'error' | 'closed';
 
@@ -22,6 +23,7 @@ export default function NodeConsolePage() {
 
   const rootRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef<HTMLDivElement>(null);
   const cleanupRef = useRef<() => void>(() => {});
   const [phase, setPhase] = useState<Phase>('connecting');
   const [error, setError] = useState('');
@@ -30,11 +32,16 @@ export default function NodeConsolePage() {
   // doesn't shrink when the on-screen keyboard opens, only visualViewport
   // does — without tracking it, the browser scrolls the console out from
   // under the visible area instead of the console just resizing to fit it.
+  // In landscape, skip the resize instead — the viewport is already short,
+  // and shrinking further to clear the keyboard leaves almost nothing to see.
   useEffect(() => {
     const root = rootRef.current;
     const vv = typeof window !== 'undefined' ? window.visualViewport : null;
     if (!root || !vv) return;
     const update = () => {
+      const isLandscape = window.innerWidth > window.innerHeight;
+      const keyboardOpen = vv.height < window.innerHeight * 0.75;
+      if (isLandscape && keyboardOpen) return;
       root.style.height = `${vv.height}px`;
       root.style.top = `${vv.offsetTop}px`;
       window.dispatchEvent(new Event('resize'));
@@ -72,8 +79,9 @@ export default function NodeConsolePage() {
         });
         const fit = new FitAddon();
         term.loadAddon(fit);
-        term.open(containerRef.current!);
+        term.open(zoomRef.current!);
         fit.fit();
+        const detachPinchZoom = attachPinchZoom(containerRef.current!, zoomRef.current!);
 
         const ws = new WebSocket(wsUrl(conn.cid));
         ws.binaryType = 'arraybuffer';
@@ -97,6 +105,7 @@ export default function NodeConsolePage() {
         window.addEventListener('resize', onResize);
         cleanupRef.current = () => {
           window.removeEventListener('resize', onResize);
+          detachPinchZoom();
           ws.close();
           term.dispose();
         };
@@ -121,7 +130,9 @@ export default function NodeConsolePage() {
           ref={containerRef}
           className="absolute inset-0 overflow-hidden"
           style={{ top: 'calc(env(safe-area-inset-top) + 4rem)' }}
-        />
+        >
+          <div ref={zoomRef} className="h-full w-full" />
+        </div>
         <div
           className="absolute left-3 flex items-center gap-2 z-10"
           style={{ top: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
