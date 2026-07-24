@@ -21,8 +21,13 @@ list, grouped by host, with live status.
 Guest lifecycle. Start, shutdown, reboot, and force stop a VM or container
 from its detail page, with confirmation on anything destructive.
 
-Configuration editing. View and edit a guest's name or hostname, core count,
-memory, and boot behavior directly from the app.
+Configuration editing. View and edit any of a guest's Proxmox configuration
+fields directly from the app: pick a new field from a grouped dropdown, with
+known options like display type or OS type offered as a dropdown of valid
+values rather than free text, or fall back to a custom field name for
+anything not in the curated list. Only the fields you actually change get
+sent back, so an unrelated field's stricter validation can never break a
+save for something else.
 
 Create wizard. Build a new QEMU VM or LXC container from your phone: pick the
 host, node, disk, image, and network bridge, then watch a live progress view
@@ -37,8 +42,11 @@ vzdump backup on demand.
 
 Console access. Open a full VNC console for a QEMU VM, or a terminal for an
 LXC container, both over a serverside WebSocket proxy so the ticket never
-reaches the browser. A phone's onscreen keyboard is wired up for both, and the
-VNC view scales to fill the screen rather than leaving it tiny in a corner.
+reaches the browser. A phone's onscreen keyboard is wired up for both. The VNC
+view asks the guest's own display to resize to match your screen exactly,
+which works if its video adapter and driver support it; otherwise it falls
+back to showing the whole screen scaled to fit, undistorted, rather than
+cropping a wide desktop down to an oversized sliver.
 
 Node shell. Beyond guest consoles, open a shell on the Proxmox node itself,
 the same thing Proxmox's own "Datacenter > Node > Shell" gives you, right from
@@ -283,6 +291,29 @@ PROXLINK_WATCHDOG_WEBHOOK=https://your-webhook-url
 ```
 
 Then run `pct exec <CTID> -- systemctl restart proxlink-watchdog.timer`.
+
+The watchdog also checks that the container can actually reach the network,
+not just that Docker and the container both report healthy. A host OS major
+version upgrade (for example Debian 12 to 13) can leave Docker's own
+networking rules stale, so the daemon and container look fine but every
+outbound connection silently goes nowhere. The watchdog detects this and
+restarts the Docker daemon automatically; you should never need to notice.
+
+## Troubleshooting
+
+A host showing "Request timed out" or a similar connection error, when you
+can otherwise reach that Proxmox host's own web UI fine, almost always means
+the network path from the ProxLink container specifically is broken, not
+Proxmox itself. The error message now names the actual failure (could not
+resolve the host, connection refused, unreachable, or a genuine timeout) so
+you are not guessing blind. If it followed a host OS upgrade on the machine
+running ProxLink, see the watchdog note above; a plain
+`systemctl restart docker` on that machine resolves it in the common case.
+
+Host entries work best as IP addresses rather than hostnames. Relying on a
+hostname adds a dependency on whatever DNS or mDNS setup happens to be
+resolving it on your network, which is one more thing that can silently stop
+working after an unrelated change.
 
 ## Development
 
