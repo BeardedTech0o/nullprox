@@ -38,6 +38,35 @@ function normaliseFingerprint(fp: string): string {
   return fp.replace(/:/g, '').toUpperCase();
 }
 
+// Node collapses every network failure into a generic Error with a .code —
+// surface what actually happened instead of a bare "socket hang up" or
+// nothing at all, so a real problem (host unreachable, nothing listening,
+// bad cert) is distinguishable from a genuine slow-response timeout without
+// needing to reproduce it with curl/tcpdump by hand.
+export function describeNetworkError(e: NodeJS.ErrnoException, host: string): string {
+  switch (e.code) {
+    case 'ENOTFOUND':
+    case 'EAI_AGAIN':
+      return `Could not resolve host "${host}" — check the address is correct and reachable (DNS/hostname lookup failed)`;
+    case 'ECONNREFUSED':
+      return `Connection refused by ${host} — check the port and that the Proxmox API is running there`;
+    case 'EHOSTUNREACH':
+      return `Host ${host} is unreachable — check the network path (routing/firewall)`;
+    case 'ENETUNREACH':
+      return 'Network unreachable';
+    case 'ECONNRESET':
+      return `Connection to ${host} was reset — the server closed the connection unexpectedly`;
+    case 'CERT_HAS_EXPIRED':
+      return 'TLS certificate has expired';
+    case 'DEPTH_ZERO_SELF_SIGNED_CERT':
+    case 'SELF_SIGNED_CERT_IN_CHAIN':
+    case 'UNABLE_TO_VERIFY_LEAF_SIGNATURE':
+      return 'TLS certificate could not be verified — if this host uses a self-signed cert, set up TLS fingerprint pinning for it instead of plain verification';
+    default:
+      return e.message;
+  }
+}
+
 function agentFor(h: PveHost): https.Agent {
   const pinned = h.tlsFingerprint ? normaliseFingerprint(h.tlsFingerprint) : null;
   // When pinning a self-signed cert we cannot also require CA validation, so we
@@ -121,8 +150,15 @@ export function pveRequest<T = any>(
         });
       },
     );
-    req.on('error', (e) => reject(new PveError(e.message, 0)));
-    req.on('timeout', () => req.destroy(new PveError('Request timed out', 0)));
+    req.on('error', (e) => reject(new PveError(describeNetworkError(e, url.hostname), 0)));
+    req.on('timeout', () =>
+      req.destroy(
+        new PveError(
+          `Request to ${url.hostname} timed out after 15s — the host accepted the connection but never responded`,
+          0,
+        ),
+      ),
+    );
     if (bodyStr) req.write(bodyStr);
     req.end();
   });
@@ -152,8 +188,10 @@ export function probeTls(
         res.resume();
       },
     );
-    req.on('error', (e) => reject(new PveError(e.message, 0)));
-    req.on('timeout', () => req.destroy(new PveError('Probe timed out', 0)));
+    req.on('error', (e) => reject(new PveError(describeNetworkError(e, u.hostname), 0)));
+    req.on('timeout', () =>
+      req.destroy(new PveError(`Connection to ${u.hostname} timed out after 10s`, 0)),
+    );
     req.end();
   });
 }

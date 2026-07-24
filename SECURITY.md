@@ -27,7 +27,8 @@ is treated as a first-class concern mapped to the OWASP Top 10.
   `X-Content-Type-Options`, `Referrer-Policy`, and `frame-ancestors 'none'`
   (`next.config.js`); the container runs as a non-root user; production source
   maps are disabled.
-- **A06 Vulnerable & Outdated Components** — `npm audit` runs in CI.
+- **A06 Vulnerable & Outdated Components** — `npm audit` runs in CI on every push
+  (informational, not currently a hard gate — see below).
 - **A07 Identification & Authentication Failures** — httpOnly/SameSite=Strict
   session cookie with idle + absolute timeouts; wrong-PIN detection via GCM auth
   failure (no separate password hash to leak).
@@ -39,6 +40,30 @@ is treated as a first-class concern mapped to the OWASP Top 10.
   `lib/ssrf.ts`, which restricts schemes and blocks loopback/link-local/RFC1918/
   cloud-metadata targets by default (host URLs opt into private ranges; ISO
   downloads do so only via `PROXLINK_ALLOW_PRIVATE_ISO=1`).
+
+## Known dependency findings (reviewed, not currently exploitable)
+
+`npm audit` currently flags Next.js 14.2.35 (the latest stable 14.x release)
+against several advisories. Each one was checked against how this app actually
+uses Next.js, not just its title:
+
+- Every remaining advisory requires a feature this app doesn't use: the App
+  Router / Server Actions / React Server Components (this app is Pages Router
+  only), `next.config.js` `rewrites()` or `i18n` (neither is configured), the
+  built-in Image Optimizer (disabled outright via `images.unoptimized`), or
+  Next's own WebSocket-upgrade proxying (this app's custom `server.ts` attaches
+  its own `'upgrade'` listener directly on the raw `http.Server` and never
+  hands WebSocket upgrade requests to Next's request handler at all, so Next's
+  internal upgrade-handling code is never reached).
+- The transitive `postcss` findings require processing untrusted CSS; this app
+  only ever runs PostCSS on its own authored stylesheet at build time.
+
+None of this is a substitute for actually upgrading — it's the reasoning for
+why a stable, non-breaking patch isn't available for 14.x right now and a
+major-version jump (Next 14 → 16) wasn't rushed through under time pressure
+just to silence the scanner. That upgrade is worth doing deliberately, with
+full regression testing of the custom server and console WebSocket proxy,
+as separate, dedicated work — not folded into an unrelated change.
 
 ## Operational guidance
 - Run ProxLink only on a trusted/VPN network and terminate TLS in front of it for

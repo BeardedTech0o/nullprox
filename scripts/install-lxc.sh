@@ -73,7 +73,25 @@ echo "==> Installing the watchdog (auto-restarts the container/daemon if it goes
 pct exec "$CTID" -- bash /opt/proxlink/scripts/watchdog/install.sh
 
 IP="$(pct exec "$CTID" -- bash -c "hostname -I | awk '{print \$1}'")"
+
+echo "==> Waiting for ProxLink to answer on port 3000"
+ready=0
+for _ in $(seq 1 30); do
+  if pct exec "$CTID" -- bash -c "curl -fsS -m 2 http://127.0.0.1:3000/api/lock/status" >/dev/null 2>&1; then
+    ready=1
+    break
+  fi
+  sleep 2
+done
+
 echo "============================================================"
-echo " ProxLink is starting in CTID $CTID"
+if [ "$ready" = "1" ]; then
+  echo " ProxLink is up in CTID $CTID"
+else
+  echo " ProxLink did not respond within 60s in CTID $CTID — it may still be"
+  echo " starting (a first Docker build can take a while), or something went"
+  echo " wrong. Check with:"
+  echo "   pct exec $CTID -- docker compose -f /opt/proxlink/docker-compose.yml logs"
+fi
 echo " Open: http://${IP}:3000"
 echo "============================================================"

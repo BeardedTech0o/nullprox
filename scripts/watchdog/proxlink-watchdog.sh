@@ -53,3 +53,36 @@ if [ "$running" != "true" ]; then
     exit 1
   fi
 fi
+
+# 3. Can the container actually reach anything outbound? A host OS upgrade
+#    (e.g. a Debian major version bump) can leave Docker's iptables/NAT rules
+#    stale — the daemon and container both report healthy, but every outbound
+#    connection from inside the container silently goes nowhere. Test against
+#    the container's own network gateway (always present, no dependency on
+#    the user's actual Proxmox hosts or internet access): getting *any*
+#    response — even a refused/reset connection — proves packets are flowing;
+#    only a bare timeout with no response at all is the broken-NAT signature.
+outbound_ok() {
+  docker exec "$CONTAINER" node -e "
+    const net = require('net');
+    const s = net.createConnection({ host: process.argv[1], port: 1, timeout: 3000 });
+    s.on('connect', () => { s.destroy(); process.exit(0); });
+    s.on('error', () => process.exit(0));
+    s.on('timeout', () => { s.destroy(); process.exit(1); });
+  " "$1" >/dev/null 2>&1
+}
+
+gateway="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$CONTAINER" 2>/dev/null || true)"
+if [ -n "$gateway" ] && ! outbound_ok "$gateway"; then
+  log "$CONTAINER's outbound networking looks wedged (no response reaching its own gateway) — restarting docker.service"
+  systemctl restart docker
+  sleep 5
+  if outbound_ok "$gateway"; then
+    log "Outbound networking recovered after Docker restart"
+    notify "✅ ProxLink watchdog on ${HOST}: container networking was wedged, Docker restart fixed it"
+  else
+    log "Outbound networking still wedged after Docker restart"
+    notify "🛑 ProxLink watchdog on ${HOST}: container networking still broken after a Docker restart — needs manual attention (known to happen after a host OS major-version upgrade; a full reboot may be required)"
+    exit 1
+  fi
+fi

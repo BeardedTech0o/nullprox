@@ -3,7 +3,10 @@ node_modules
 .git
 data
 *.db
+*.db-*
 coverage
 playwright-report
 test-results
 .github
+.env
+.env.*
