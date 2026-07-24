@@ -30,6 +30,17 @@ export default function KeyToolbar({
         <button
           key={b.key}
           type="button"
+          // Tapping a <button> normally steals focus from whatever text
+          // input currently has it — here that's the terminal's own hidden
+          // textarea (or the VNC keyInputRef), which is what the on-screen
+          // keyboard is actually attached to. Losing that focus dismisses
+          // the keyboard, then refocusing it on the next tap reopens it,
+          // producing a visible flash of iOS's keyboard + its input
+          // accessory bar on every press. Preventing pointerdown's default
+          // action stops the browser from moving focus to the button at
+          // all, so the terminal stays focused and the keyboard never
+          // toggles — onClick still fires normally afterwards.
+          onPointerDown={(e) => e.preventDefault()}
           onClick={() => onPress(b.key)}
           aria-label={b.label}
           className="h-11 w-11 rounded-full bg-black/60 text-white grid place-items-center backdrop-blur-sm active:scale-95 transition-transform"
