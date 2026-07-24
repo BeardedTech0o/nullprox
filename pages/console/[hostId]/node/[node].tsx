@@ -1,8 +1,10 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import Icon from '@/components/Icon';
+import KeyToolbar from '@/components/console/KeyToolbar';
 import { api } from '@/lib/client/fetcher';
 import { attachPinchZoom } from '@/lib/client/pinchZoom';
+import { TERM_KEY_SEQUENCES, type ConsoleKey } from '@/lib/client/termKeys';
 
 type Phase = 'connecting' | 'connected' | 'error' | 'closed';
 
@@ -25,6 +27,7 @@ export default function NodeConsolePage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const zoomRef = useRef<HTMLDivElement>(null);
   const cleanupRef = useRef<() => void>(() => {});
+  const sendKeyRef = useRef<(key: ConsoleKey) => void>(() => {});
   const [phase, setPhase] = useState<Phase>('connecting');
   const [error, setError] = useState('');
 
@@ -97,7 +100,9 @@ export default function NodeConsolePage() {
         };
         ws.onerror = () => { setError('Connection error'); setPhase('error'); };
         ws.onclose = () => setPhase('closed');
-        term.onData((d) => ws.readyState === WebSocket.OPEN && ws.send(`0:${d.length}:${d}`));
+        const sendRaw = (d: string) => ws.readyState === WebSocket.OPEN && ws.send(`0:${d.length}:${d}`);
+        term.onData(sendRaw);
+        sendKeyRef.current = (key) => sendRaw(TERM_KEY_SEQUENCES[key]);
         const onResize = () => {
           fit.fit();
           if (ws.readyState === WebSocket.OPEN) ws.send(`1:${term.cols}:${term.rows}:`);
@@ -149,6 +154,9 @@ export default function NodeConsolePage() {
             {node}
           </span>
         </div>
+        {phase === 'connected' && (
+          <KeyToolbar onPress={(key) => sendKeyRef.current(key)} bottomRem={1} />
+        )}
         {phase !== 'connected' && (
           <div className="absolute inset-0 grid place-items-center text-white/80 pointer-events-none">
             <div className="flex flex-col items-center gap-2">

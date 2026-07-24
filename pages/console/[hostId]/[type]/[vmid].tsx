@@ -1,10 +1,12 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import Icon from '@/components/Icon';
+import KeyToolbar from '@/components/console/KeyToolbar';
 import { api, pvePath } from '@/lib/client/fetcher';
-import { attachMobileKeyboard } from '@/lib/client/novncKeyboard';
+import { attachMobileKeyboard, pressSpecialKey } from '@/lib/client/novncKeyboard';
 import { attachFitScale } from '@/lib/client/novncScale';
 import { attachPinchZoom } from '@/lib/client/pinchZoom';
+import { TERM_KEY_SEQUENCES, type ConsoleKey } from '@/lib/client/termKeys';
 import type { GuestType } from '@/lib/proxmox/endpoints';
 
 type Phase = 'connecting' | 'connected' | 'error' | 'closed';
@@ -26,6 +28,7 @@ export default function ConsolePage() {
   const keyInputRef = useRef<HTMLTextAreaElement>(null);
   const termRef = useRef<{ focus(): void } | null>(null);
   const cleanupRef = useRef<() => void>(() => {});
+  const sendKeyRef = useRef<(key: ConsoleKey) => void>(() => {});
   const [phase, setPhase] = useState<Phase>('connecting');
   const [error, setError] = useState('');
   const [mode, setMode] = useState<'vnc' | 'term'>('vnc');
@@ -129,6 +132,7 @@ export default function ConsolePage() {
             : () => {};
           const detachFitScale = attachFitScale(rfb, containerRef.current!);
           const detachPinchZoom = attachPinchZoom(containerRef.current!, zoomRef.current!);
+          sendKeyRef.current = (key) => pressSpecialKey(rfb, key);
 
           cleanupRef.current = () => {
             containerRef.current?.removeEventListener('touchstart', focusKeyInput);
@@ -170,7 +174,9 @@ export default function ConsolePage() {
           };
           ws.onerror = () => { setError('Connection error'); setPhase('error'); };
           ws.onclose = () => setPhase('closed');
-          term.onData((d) => ws.readyState === WebSocket.OPEN && ws.send(`0:${d.length}:${d}`));
+          const sendRaw = (d: string) => ws.readyState === WebSocket.OPEN && ws.send(`0:${d.length}:${d}`);
+          term.onData(sendRaw);
+          sendKeyRef.current = (key) => sendRaw(TERM_KEY_SEQUENCES[key]);
           const onResize = () => {
             fit.fit();
             if (ws.readyState === WebSocket.OPEN) ws.send(`1:${term.cols}:${term.rows}:`);
@@ -238,6 +244,9 @@ export default function ConsolePage() {
           className="absolute bottom-0 right-0 h-px w-px opacity-0 pointer-events-none resize-none"
           style={{ fontSize: 16 }}
         />
+        {phase === 'connected' && (
+          <KeyToolbar onPress={(key) => sendKeyRef.current(key)} />
+        )}
         {phase === 'connected' && (
           <button
             type="button"

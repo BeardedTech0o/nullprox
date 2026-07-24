@@ -44,21 +44,30 @@ function keysymForChar(ch: string): number {
   return cp >= 0x20 && cp <= 0xff ? cp : 0x01000000 + cp;
 }
 
-interface KeySender {
+export interface KeySender {
   sendKey(keysym: number, code: string, down?: boolean): void;
 }
 
-export function attachMobileKeyboard(rfb: KeySender, el: HTMLTextAreaElement): () => void {
-  const press = (keysym: number, code: string) => {
-    rfb.sendKey(keysym, code, true);
-    rfb.sendKey(keysym, code, false);
-  };
+function press(rfb: KeySender, keysym: number, code: string) {
+  rfb.sendKey(keysym, code, true);
+  rfb.sendKey(keysym, code, false);
+}
 
+// For the on-screen Tab/arrow toolbar — mobile virtual keyboards don't have
+// a Tab key or arrow keys at all, so those need an explicit button rather
+// than relying on the keyboard bridge above (which only translates keys the
+// on-screen keyboard actually sends).
+export function pressSpecialKey(rfb: KeySender, key: keyof typeof SPECIAL_KEYS): void {
+  const [keysym, code] = SPECIAL_KEYS[key];
+  press(rfb, keysym, code);
+}
+
+export function attachMobileKeyboard(rfb: KeySender, el: HTMLTextAreaElement): () => void {
   const onKeyDown = (e: KeyboardEvent) => {
     const special = SPECIAL_KEYS[e.key];
     if (!special) return;
     e.preventDefault();
-    press(special[0], special[1]);
+    press(rfb, special[0], special[1]);
     el.value = '';
   };
 
@@ -66,11 +75,11 @@ export function attachMobileKeyboard(rfb: KeySender, el: HTMLTextAreaElement): (
     const inputType = (e as InputEvent).inputType;
     const data = (e as InputEvent).data;
     if (inputType === 'deleteContentBackward') {
-      press(XK_BackSpace, 'Backspace');
+      press(rfb, XK_BackSpace, 'Backspace');
     } else if (inputType === 'insertLineBreak') {
-      press(XK_Return, 'Enter');
+      press(rfb, XK_Return, 'Enter');
     } else {
-      for (const ch of data ?? el.value) press(keysymForChar(ch), 'Unidentified');
+      for (const ch of data ?? el.value) press(rfb, keysymForChar(ch), 'Unidentified');
     }
     el.value = '';
   };

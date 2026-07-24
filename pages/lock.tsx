@@ -53,10 +53,10 @@ export default function LockPage() {
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-5 py-8">
       <div className="w-full max-w-sm rounded-2xl overflow-hidden shadow-card">
         <Image
-          src="/proxlink.png"
+          src="/proxlink-collage.png"
           alt="ProxLink"
-          width={1952}
-          height={544}
+          width={850}
+          height={450}
           priority
           className="w-full h-auto"
         />
