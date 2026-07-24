@@ -1,343 +1,123 @@
 # ProxLink
 
-ProxLink is a mobile first PWA for managing one or more Proxmox VE hosts from
-your phone. It talks to Proxmox over its REST API using API tokens, through a
-small backend that holds your encrypted credentials, and it is meant to be
-self hosted, ideally dropped straight onto Proxmox itself as an LXC.
+Mobile-first PWA for managing Proxmox VE hosts from your phone. Talks to
+Proxmox over its REST API via API tokens, through a self-hosted backend that
+holds encrypted credentials — meant to run as an LXC on Proxmox itself.
 
-Built with Next.js and Tailwind. See [`SECURITY.md`](./SECURITY.md) for the
-full security model.
+Built with Next.js + Tailwind. See [`SECURITY.md`](./SECURITY.md) for the
+security model.
 
-## What it does
+## Features
 
-Unlock. ProxLink is gated behind a PIN or passphrase you choose on first run.
-Your Proxmox API tokens are encrypted at rest with 256 bit AES in GCM mode,
-and the key only ever lives in memory while the app is unlocked.
+App lock (PIN, AES-256-GCM at rest) · multi-host dashboard, grouped by host ·
+guest lifecycle (start/stop/reboot, confirm on destructive) · config editing ·
+create wizard for QEMU/LXC · ISO/template download from URL · snapshots &
+backups · VNC/terminal console with on-screen keyboard and auto-resize ·
+node shell · cross-host tasks view · light/dark theme + accent, installable
+PWA · allowlisted PVE proxy, SSRF-guarded ISO fetch, CSP/security headers,
+audit log.
 
-Multiple hosts. Connect as many Proxmox hosts or clusters as you like. The
-Guests dashboard aggregates every VM and container across all of them into one
-list, grouped by host, with live status.
+## Setup
 
-Guest lifecycle. Start, shutdown, reboot, and force stop a VM or container
-from its detail page, with confirmation on anything destructive.
+### 1. Create a Proxmox API token
 
-Configuration editing. View and edit any of a guest's Proxmox configuration
-fields directly from the app: pick a new field from a grouped dropdown, with
-known options like display type or OS type offered as a dropdown of valid
-values rather than free text, or fall back to a custom field name for
-anything not in the curated list. Only the fields you actually change get
-sent back, so an unrelated field's stricter validation can never break a
-save for something else.
+Tokens have Privilege Separation on by default — a new token starts with
+**no permissions**. Either disable it so the token inherits the user's
+rights, or grant an explicit role.
 
-Create wizard. Build a new QEMU VM or LXC container from your phone: pick the
-host, node, disk, image, and network bridge, then watch a live progress view
-while Proxmox builds it.
+Web UI: Datacenter → Permissions → API Tokens → Add. Uncheck Privilege
+Separation for the simple case. Copy the secret (shown once).
 
-ISO and template downloads. Pull an ISO or container template straight from a
-URL into Proxmox storage, with the destination filename validated and auto
-filled from the URL itself.
-
-Snapshots and backups. Create, roll back, and delete snapshots. Trigger a
-vzdump backup on demand.
-
-Console access. Open a full VNC console for a QEMU VM, or a terminal for an
-LXC container, both over a serverside WebSocket proxy so the ticket never
-reaches the browser. A phone's onscreen keyboard is wired up for both. The VNC
-view asks the guest's own display to resize to match your screen exactly,
-which works if its video adapter and driver support it; otherwise it falls
-back to showing the whole screen scaled to fit, undistorted, rather than
-cropping a wide desktop down to an oversized sliver.
-
-Node shell. Beyond guest consoles, open a shell on the Proxmox node itself,
-the same thing Proxmox's own "Datacenter > Node > Shell" gives you, right from
-the Hosts page.
-
-Tasks. See recent activity across every connected host in one place.
-
-Theme and accent. Light or dark mode, with a choice of accent colors,
-installable as a home screen app.
-
-Security posture. Every Proxmox call goes through an allowlisted proxy rather
-than arbitrary passthrough, a guard blocks serverside requests to private or
-loopback addresses for the ISO download feature, strict security headers and
-a content security policy are set on every response, and privileged actions
-are written to an audit log.
-
-## Setup overview
-
-There are two halves to getting started.
-
-1. Create a Proxmox API token that ProxLink will use to talk to your host.
-2. Deploy ProxLink on Proxmox, typically as an LXC, then add your host inside
-   the app.
-
-You can do these in either order, but you will need the token's secret, shown
-only once when it is created, when you add the host in the app.
-
-## 1. Create a Proxmox API token
-
-ProxLink authenticates with a Proxmox API token, never a stored password. A
-token belongs to a user and looks like `user@realm!tokenname`, paired with a
-secret UUID.
-
-Proxmox tokens have Privilege Separation turned on by default, which means a
-brand new token starts with no permissions at all, even if its user is an
-admin. Either turn Privilege Separation off so the token inherits the user's
-rights, or grant the token its own permissions as described below.
-
-### Option A: web UI
-
-1. Log into the Proxmox web UI as an admin.
-2. Go to Datacenter, then Permissions, then API Tokens, then Add.
-3. Pick a user, such as `root@pam`, and set a token ID, such as `proxlink`.
-4. For the simplest homelab setup, uncheck Privilege Separation so the token
-   inherits the user's permissions. For least privilege, leave it checked and
-   grant permissions as described in Token privileges below.
-5. Click Add and copy the secret immediately. It is shown only once.
-
-You now have a token ID like `root@pam!proxlink` and a secret UUID.
-
-### Option B: shell on the Proxmox host
-
-Create a token for `root@pam` with privilege separation disabled, so it
-inherits root's permissions:
+Shell (simple):
 
 ```bash
 pveum user token add root@pam proxlink --privsep 0
 ```
 
-This prints a table containing the token's value, which is the secret. Copy
-it now.
+For least privilege, create a dedicated role/user instead of using `root@pam`,
+scoped to just the privileges below.
 
-For a least privilege setup, create a dedicated user and role instead:
+Privileges by feature — console needs `VM.Console`, node shell needs
+`Sys.Console`, guest listing needs `VM.Audit`+`Sys.Audit`+`Pool.Audit`,
+lifecycle needs `VM.PowerMgmt`, snapshots/backups need `VM.Snapshot`/
+`VM.Backup`. A silent feature failure is almost always a missing privilege
+here.
 
-```bash
-pveum role add ProxLink --privs \
-  "VM.Audit VM.PowerMgmt VM.Console VM.Config.Disk VM.Config.CDROM \
-   VM.Config.CPU VM.Config.Memory VM.Config.Network VM.Config.Options \
-   VM.Allocate VM.Snapshot VM.Backup Datastore.Audit Datastore.AllocateSpace \
-   Datastore.AllocateTemplate Sys.Audit Sys.Console Pool.Audit"
+### 2. Deploy
 
-pveum user add proxlink@pve --password '<choose one>'
-pveum acl modify / --user proxlink@pve --role ProxLink
-pveum user token add proxlink@pve app --privsep 1
-pveum acl modify / --token 'proxlink@pve!app' --role ProxLink
-```
-
-### Token privileges
-
-Different features need different privileges. If something silently does not
-work, this is the first place to check.
-
-Seeing guests, their status, and their configuration needs `VM.Audit`,
-`Sys.Audit`, and `Pool.Audit`.
-
-Starting, stopping, and rebooting needs `VM.PowerMgmt`.
-
-Editing configuration needs the relevant `VM.Config.*` privilege.
-
-Creating or deleting guests needs `VM.Allocate` and
-`Datastore.AllocateSpace`.
-
-Snapshots need `VM.Snapshot`.
-
-Backups need `VM.Backup`, `Datastore.AllocateSpace`, and `Datastore.Audit`.
-
-Downloading an ISO or template needs `Datastore.AllocateTemplate` and
-`Datastore.Audit`.
-
-The guest console, both VNC and terminal, needs `VM.Console`.
-
-The node shell needs `Sys.Console`.
-
-If the console fails to connect, it is almost always a missing `VM.Console`
-or `Sys.Console` privilege, or a token with Privilege Separation on but no
-ACL granted to it.
-
-## 2. Deploy ProxLink on Proxmox
-
-ProxLink is meant to run inside your network, on the Proxmox box itself, as a
-small LXC. Pick one of the options below.
-
-### Option A: one line LXC installer, recommended
-
-Run this on a Proxmox host, either from the node shell or over SSH. It
-creates a Debian LXC, installs Docker, and starts ProxLink.
+One-line LXC installer (recommended), run on a Proxmox host:
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/BeardedTech0o/prox-link/main/scripts/install-lxc.sh)"
 ```
 
-When it finishes it prints the container's IP and URL, something like
-`http://10.0.0.50:3000`. Review the script before running it. You can tune it
-with environment variables:
+Tunable via env vars, e.g. `CTID=131 CT_HOSTNAME=proxlink DISK_GB=10
+RAM_MB=1024 CORES=2 BRIDGE=vmbr0 STORAGE=local-lvm bash -c "..."`.
 
-```bash
-CTID=131 CT_HOSTNAME=proxlink DISK_GB=10 RAM_MB=1024 CORES=2 \
-BRIDGE=vmbr0 STORAGE=local-lvm \
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/BeardedTech0o/prox-link/main/scripts/install-lxc.sh)"
-```
-
-### Option B: manual LXC plus Docker Compose
-
-1. In the Proxmox UI, create a Debian 12 LXC. Unprivileged is fine. Enable
-   nesting under Options, then Features, so Docker can run inside it. One
-   vCPU, one GB of RAM, and ten GB of disk is a comfortable amount of room for
-   the Docker build.
-2. Start it, open its console, and install Docker:
-
-   ```bash
-   apt update && apt install -y ca-certificates curl git
-   curl -fsSL https://get.docker.com | sh
-   ```
-
-3. Clone and start ProxLink:
-
-   ```bash
-   git clone https://github.com/beardedtech0o/prox-link.git /opt/proxlink
-   cd /opt/proxlink
-   docker compose up -d --build
-   ```
-
-4. Browse to `http://<container ip>:3000`.
-
-### Option C: Docker Compose anywhere
-
-Any Docker host on the same network, a NAS, a VM, a mini PC, works the same
-way:
+Manual: any Docker host (LXC, NAS, VM) —
 
 ```bash
 git clone https://github.com/beardedtech0o/prox-link.git && cd prox-link
 docker compose up -d --build
 ```
 
-Then open `http://<host ip>:3000`.
+Browse to `http://<ip>:3000`. The SQLite DB persists in the `proxlink-data`
+volume — back it up if it matters.
 
-The SQLite database, which holds your encrypted host list, persists in the
-`proxlink-data` volume. Back it up if you care about keeping your saved
-hosts.
+### 3. First run
 
-## 3. First run: add your host
-
-1. Open `http://<proxlink ip>:3000`. On a phone, use Add to Home Screen to
-   install it like a native app.
-2. Set a PIN or passphrase. This encrypts your stored API tokens. There is no
-   recovery if you forget it.
-3. Go to Hosts, then Add, and fill in the base URL of your Proxmox API
-   endpoint including the port, for example `https://192.168.1.10:8006`, the
-   API token ID, for example `root@pam!proxlink`, and the API token secret,
-   the UUID copied when the token was created. Leave Verify TLS off for a
-   typical self signed Proxmox certificate. ProxLink pins the certificate's
-   fingerprint on first connect instead of requiring a trusted CA.
-4. Tap Test connection to confirm the token works and pin the certificate,
-   then Save host. Your VMs and containers appear on the dashboard.
-
-Add more hosts the same way. The dashboard aggregates all of them, and a
-single host that is part of a cluster surfaces the whole cluster's guests.
+Add to Home Screen on a phone. Set a PIN (unrecoverable if forgotten). Go to
+Hosts → Add: base URL with port, token ID, token secret — leave Verify TLS
+off for a self-signed cert (ProxLink pins the fingerprint instead). Test
+connection, then Save.
 
 ## Configuration
 
-`PORT` sets the HTTP port the server listens on and defaults to `3000`.
-
-`HOST` sets the bind address and defaults to `0.0.0.0`.
-
-`PROXLINK_DATA_DIR` sets the directory used for the SQLite database and
-defaults to `/data`.
-
-`PROXLINK_ALLOW_PRIVATE_ISO` allows ISO downloads from private or LAN URLs
-when set to `1`, and defaults to `0`.
-
-For production use, run ProxLink behind a reverse proxy with HTTPS, and keep
-it on a trusted or VPN only network. See [`SECURITY.md`](./SECURITY.md).
+`PORT` (3000), `HOST` (0.0.0.0), `PROXLINK_DATA_DIR` (`/data`),
+`PROXLINK_ALLOW_PRIVATE_ISO` (0 — allow ISO downloads from private/LAN URLs).
+Run behind HTTPS on a trusted/VPN network in production.
 
 ## Updating
 
 ```bash
-cd /opt/proxlink
-git pull
-docker compose up -d --build
+cd /opt/proxlink && git pull && docker compose up -d --build
 ```
 
-## Watchdog, automatic recovery
+## Watchdog
 
-The Compose file sets `restart: unless-stopped`, but that only helps if the
-Docker daemon itself is healthy. It does nothing if the daemon gets wedged,
-which can happen after certain Proxmox LXC backup modes freeze the
-filesystem mid backup, leaving the container stopped without restarting.
-
-Installs done through `scripts/install-lxc.sh` get a watchdog automatically:
-a systemd timer that runs every two minutes, restarts the Docker daemon if it
-is unresponsive, and brings the container back up if it is not running.
-
-To add it to a deployment that predates the watchdog:
+`scripts/install-lxc.sh` installs a systemd timer checking every 2 minutes,
+restarting Docker/the container if wedged — including a silently-broken
+outbound network (e.g. after a host OS upgrade) even when Docker looks
+healthy. Add to an existing install:
 
 ```bash
 pct exec <CTID> -- bash -c "cd /opt/proxlink && git pull"
 pct exec <CTID> -- bash /opt/proxlink/scripts/watchdog/install.sh
 ```
 
-To check that it is working:
-
-```bash
-pct exec <CTID> -- journalctl -u proxlink-watchdog.service -n 50
-```
-
-For optional alerts when it has to intervene, create
-`/etc/default/proxlink-watchdog` inside the container with a webhook URL.
-Discord, Slack, ntfy, and similar services all accept a simple JSON POST.
-
-```
-PROXLINK_WATCHDOG_WEBHOOK=https://your-webhook-url
-```
-
-Then run `pct exec <CTID> -- systemctl restart proxlink-watchdog.timer`.
-
-The watchdog also checks that the container can actually reach the network,
-not just that Docker and the container both report healthy. A host OS major
-version upgrade (for example Debian 12 to 13) can leave Docker's own
-networking rules stale, so the daemon and container look fine but every
-outbound connection silently goes nowhere. The watchdog detects this and
-restarts the Docker daemon automatically; you should never need to notice.
+Optional webhook alerts: set `PROXLINK_WATCHDOG_WEBHOOK=<url>` in
+`/etc/default/proxlink-watchdog`, then restart the timer.
 
 ## Troubleshooting
 
-A host showing "Request timed out" or a similar connection error, when you
-can otherwise reach that Proxmox host's own web UI fine, almost always means
-the network path from the ProxLink container specifically is broken, not
-Proxmox itself. The error message now names the actual failure (could not
-resolve the host, connection refused, unreachable, or a genuine timeout) so
-you are not guessing blind. If it followed a host OS upgrade on the machine
-running ProxLink, see the watchdog note above; a plain
-`systemctl restart docker` on that machine resolves it in the common case.
-
-Host entries work best as IP addresses rather than hostnames. Relying on a
-hostname adds a dependency on whatever DNS or mDNS setup happens to be
-resolving it on your network, which is one more thing that can silently stop
-working after an unrelated change.
+"Request timed out" while Proxmox's own web UI works fine means the network
+path from the ProxLink container is broken, not Proxmox — the error now
+names the actual cause (DNS, refused, unreachable, timeout). Try
+`systemctl restart docker` after a host OS upgrade. Prefer IPs over
+hostnames for host entries.
 
 ## Development
 
 ```bash
-npm install
-npm run dev
-npm run typecheck
-npm run lint
-npm test
-npm run build
+npm install && npm run dev   # custom server, port 3000
+npm run typecheck && npm run lint && npm test && npm run build
 ```
-
-`npm run dev` starts the custom server, which combines Next.js with the
-console WebSocket proxy, on port 3000.
 
 ## Roadmap
 
-Implemented so far: app lock, multiple hosts, the aggregated dashboard,
-guest lifecycle actions, configuration editing, the create wizard, ISO and
-template downloads from a URL with live progress, snapshots, backups, guest
-console access for both VMs and containers, node shell access, and a
-cross host task view.
-
-Planned: live monitoring charts, push notifications, and cluster, storage,
-network, firewall, and user administration.
+Done: app lock, multi-host dashboard, lifecycle, config editing, create
+wizard, ISO/template download, snapshots, backups, console, node shell,
+tasks. Planned: monitoring charts, push notifications, cluster/storage/
+network/firewall/user administration.
 
 [![Buy Me a Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=nullobj&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/nullobj)
