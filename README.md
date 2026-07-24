@@ -118,6 +118,6 @@ npm run typecheck && npm run lint && npm test && npm run build
 Done: app lock, multi-host dashboard, lifecycle, config editing, create
 wizard, ISO/template download, snapshots, backups, console, node shell,
 tasks. Planned: monitoring charts, push notifications, cluster/storage/
-network/firewall/user administration.
+network/firewall/user administration, passcode reset.
 
 [![Buy Me a Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=nullobj&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/nullobj)
