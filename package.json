@@ -1,8 +1,8 @@
 {
-  "name": "prox-link",
+  "name": "nullprox",
   "version": "0.1.0",
   "private": true,
-  "description": "ProxLink — mobile-first PWA to manage one or more Proxmox VE hosts",
+  "description": "nullprox — mobile-first PWA to manage one or more Proxmox VE hosts",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx server.ts",
     "build": "next build",

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Installs the ProxLink watchdog (systemd service + timer) on this machine.
-# Run as root *inside* the ProxLink container/VM (not on the Proxmox host).
+# Installs the nullprox watchdog (systemd service + timer) on this machine.
+# Run as root *inside* the nullprox container/VM (not on the Proxmox host).
 #
 # Fresh installs: scripts/install-lxc.sh runs this automatically.
 # Existing deployments: pull the latest code, then run this once:
@@ -15,7 +15,7 @@ install -m 0644 "$DIR/proxlink-watchdog.timer" /etc/systemd/system/proxlink-watc
 systemctl daemon-reload
 systemctl enable --now proxlink-watchdog.timer
 
-echo "ProxLink watchdog installed — checks every 2 minutes, auto-restarts the"
+echo "nullprox watchdog installed — checks every 2 minutes, auto-restarts the"
 echo "container (and the Docker daemon itself if it's wedged)."
 echo
 echo "Logs:    journalctl -u proxlink-watchdog.service -n 50"

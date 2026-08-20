@@ -53,7 +53,7 @@ export default function LockPage() {
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-5 py-8">
       <Image
         src="/nullprox-banner.png"
-        alt="ProxLink"
+        alt="nullprox"
         width={2400}
         height={760}
         priority

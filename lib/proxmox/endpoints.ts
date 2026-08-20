@@ -1,6 +1,6 @@
 import { pveRequest, type PveHost } from './client';
 
-// Typed-ish wrappers over the PVE API surface used by ProxLink. These keep the
+// Typed-ish wrappers over the PVE API surface used by nullprox. These keep the
 // API routes thin and the endpoint strings in one place.
 
 export type GuestType = 'qemu' | 'lxc';

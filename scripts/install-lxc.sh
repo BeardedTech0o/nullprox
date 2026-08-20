@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# ProxLink — Proxmox LXC installer (tteck-style).
+# nullprox — Proxmox LXC installer (tteck-style).
 # Run on a Proxmox VE host. Creates a Debian 12 LXC, installs Docker, and starts
-# ProxLink via docker compose. Review before running; it creates a container.
+# nullprox via docker compose. Review before running; it creates a container.
 set -euo pipefail
 
 CTID="${CTID:-}"                         # auto-pick next free id if empty
@@ -15,7 +15,7 @@ CORES="${CORES:-2}"
 BRIDGE="${BRIDGE:-vmbr0}"
 STORAGE="${STORAGE:-local-lvm}"
 TEMPLATE_STORAGE="${TEMPLATE_STORAGE:-local}"
-REPO_URL="${REPO_URL:-https://github.com/beardedtech0o/prox-link.git}"
+REPO_URL="${REPO_URL:-https://github.com/beardedtech0o/nullprox.git}"
 TEMPLATE="${TEMPLATE:-}"   # auto-detected below if unset; set to pin a specific build
 
 command -v pct >/dev/null || { echo "This must run on a Proxmox VE host (pct not found)."; exit 1; }
@@ -52,7 +52,7 @@ pct create "$CTID" "${TEMPLATE_STORAGE}:vztmpl/${TEMPLATE}" \
 pct start "$CTID"
 sleep 5
 
-echo "==> Installing Docker + ProxLink inside the container"
+echo "==> Installing Docker + nullprox inside the container"
 pct exec "$CTID" -- bash -c '
   set -euo pipefail
   export DEBIAN_FRONTEND=noninteractive
@@ -74,7 +74,7 @@ pct exec "$CTID" -- bash /opt/proxlink/scripts/watchdog/install.sh
 
 IP="$(pct exec "$CTID" -- bash -c "hostname -I | awk '{print \$1}'")"
 
-echo "==> Waiting for ProxLink to answer on port 3000"
+echo "==> Waiting for nullprox to answer on port 3000"
 ready=0
 for _ in $(seq 1 30); do
   if pct exec "$CTID" -- bash -c "curl -fsS -m 2 http://127.0.0.1:3000/api/lock/status" >/dev/null 2>&1; then
@@ -86,9 +86,9 @@ done
 
 echo "============================================================"
 if [ "$ready" = "1" ]; then
-  echo " ProxLink is up in CTID $CTID"
+  echo " nullprox is up in CTID $CTID"
 else
-  echo " ProxLink did not respond within 60s in CTID $CTID — it may still be"
+  echo " nullprox did not respond within 60s in CTID $CTID — it may still be"
   echo " starting (a first Docker build can take a while), or something went"
   echo " wrong. Check with:"
   echo "   pct exec $CTID -- docker compose -f /opt/proxlink/docker-compose.yml logs"

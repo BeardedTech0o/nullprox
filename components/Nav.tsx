@@ -23,7 +23,7 @@ export default function Nav() {
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:w-60 md:bg-surface md:border-r md:border-border md:z-30">
         <div className="px-5 py-5">
-          <span className="text-xl font-bold tracking-tight">ProxLink</span>
+          <span className="text-xl font-bold tracking-tight">nullprox</span>
         </div>
         <nav className="flex-1 flex flex-col gap-1 px-3">
           {TABS.map((t) => {

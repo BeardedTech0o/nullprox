@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ProxLink watchdog — detects a stopped container or a wedged Docker daemon
+# nullprox watchdog — detects a stopped container or a wedged Docker daemon
 # (e.g. after an LXC backup filesystem freeze) and recovers it. Idempotent;
 # safe to run on a timer. Installed by scripts/install-lxc.sh, or manually via
 # scripts/watchdog/install.sh on an existing deployment.
@@ -31,7 +31,7 @@ if ! timeout 10 docker info >/dev/null 2>&1; then
   sleep 5
   if ! timeout 10 docker info >/dev/null 2>&1; then
     log "Docker daemon still unresponsive after restart"
-    notify "⚠️ ProxLink watchdog on ${HOST}: Docker daemon unresponsive even after restart — needs manual attention"
+    notify "⚠️ nullprox watchdog on ${HOST}: Docker daemon unresponsive even after restart — needs manual attention"
     exit 1
   fi
   log "Docker daemon recovered after restart"
@@ -46,10 +46,10 @@ if [ "$running" != "true" ]; then
   running="$(docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null || true)"
   if [ "$running" = "true" ]; then
     log "$CONTAINER recovered"
-    notify "✅ ProxLink watchdog on ${HOST}: container was down, restarted successfully"
+    notify "✅ nullprox watchdog on ${HOST}: container was down, restarted successfully"
   else
     log "Failed to bring $CONTAINER back up"
-    notify "🛑 ProxLink watchdog on ${HOST}: failed to restart the container — needs manual attention"
+    notify "🛑 nullprox watchdog on ${HOST}: failed to restart the container — needs manual attention"
     exit 1
   fi
 fi
@@ -79,10 +79,10 @@ if [ -n "$gateway" ] && ! outbound_ok "$gateway"; then
   sleep 5
   if outbound_ok "$gateway"; then
     log "Outbound networking recovered after Docker restart"
-    notify "✅ ProxLink watchdog on ${HOST}: container networking was wedged, Docker restart fixed it"
+    notify "✅ nullprox watchdog on ${HOST}: container networking was wedged, Docker restart fixed it"
   else
     log "Outbound networking still wedged after Docker restart"
-    notify "🛑 ProxLink watchdog on ${HOST}: container networking still broken after a Docker restart — needs manual attention (known to happen after a host OS major-version upgrade; a full reboot may be required)"
+    notify "🛑 nullprox watchdog on ${HOST}: container networking still broken after a Docker restart — needs manual attention (known to happen after a host OS major-version upgrade; a full reboot may be required)"
     exit 1
   fi
 fi

@@ -21,6 +21,6 @@ app.prepare().then(() => {
 
   server.listen(port, hostname, () => {
     // eslint-disable-next-line no-console
-    console.log(`▲ ProxLink ready on http://${hostname}:${port}`);
+    console.log(`▲ nullprox ready on http://${hostname}:${port}`);
   });
 });

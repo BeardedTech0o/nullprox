@@ -1,13 +1,13 @@
 # Security Model
 
-ProxLink holds API tokens that control your Proxmox infrastructure, so security
+nullprox holds API tokens that control your Proxmox infrastructure, so security
 is treated as a first-class concern mapped to the OWASP Top 10.
 
 ## Threat model summary
 - **Assets:** Proxmox API token secrets, the app-unlock PIN-derived key, console
   tickets.
-- **Trust boundary:** the self-hosted ProxLink server is the only component that
-  ever sees decrypted token secrets. The browser talks only to ProxLink's
+- **Trust boundary:** the self-hosted nullprox server is the only component that
+  ever sees decrypted token secrets. The browser talks only to nullprox's
   same-origin BFF.
 
 ## Controls (OWASP Top 10)
@@ -66,7 +66,7 @@ full regression testing of the custom server and console WebSocket proxy,
 as separate, dedicated work — not folded into an unrelated change.
 
 ## Operational guidance
-- Run ProxLink only on a trusted/VPN network and terminate TLS in front of it for
+- Run nullprox only on a trusted/VPN network and terminate TLS in front of it for
   production use.
 - Create a dedicated Proxmox API token with the least privilege needed.
 - Back up the `/data` volume (contains the encrypted SQLite database).

@@ -82,7 +82,7 @@ export default function NewHostPage() {
             <input
               className={`${inputCls} font-mono`}
               autoCapitalize="none"
-              placeholder="root@pam!proxlink"
+              placeholder="root@pam!nullprox"
               value={form.tokenId}
               onChange={(e) => set('tokenId', e.target.value)}
             />

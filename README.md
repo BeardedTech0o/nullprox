@@ -1,6 +1,6 @@
 # nullprox
 
-![ProxLink, homelab control in your pocket](./public/nullprox-readme.png)
+![nullprox, homelab control in your pocket](./public/nullprox-readme.png)
 
 A mobile PWA for managing Proxmox VE hosts from your phone. Self hosted,
 built to run as an LXC on Proxmox itself.
@@ -26,7 +26,7 @@ Web UI: Datacenter → Permissions → API Tokens → Add, uncheck Privilege
 Separation, copy the secret. Or via shell:
 
 ```bash
-pveum user token add root@pam proxlink --privsep 0
+pveum user token add root@pam nullprox --privsep 0
 ```
 
 Use least privilege: a dedicated role, not `root@pam`. Console needs
@@ -58,10 +58,10 @@ Browse to `http://<ip>:3000`. The SQLite database lives in the
 
 ### 3. First run
 
-Add ProxLink to your home screen. Set a PIN (there is no recovery if you
+Add nullprox to your home screen. Set a PIN (there is no recovery if you
 forget it). Under Hosts, tap Add and enter the base URL with port, the
 token ID and the token secret. Leave Verify TLS off for a self signed
-certificate; ProxLink pins the fingerprint instead. Test the connection,
+certificate; nullprox pins the fingerprint instead. Test the connection,
 then save.
 
 ## Creating a VM and downloading an ISO
@@ -101,7 +101,7 @@ For optional webhook alerts, set `PROXLINK_WATCHDOG_WEBHOOK=<url>` in
 ## Troubleshooting
 
 If you see "Request timed out" while Proxmox's own UI works fine, the
-network path from ProxLink is broken, not Proxmox. Try
+network path from nullprox is broken, not Proxmox. Try
 `systemctl restart docker` after a host OS upgrade. IPs are more reliable
 than hostnames.
 
