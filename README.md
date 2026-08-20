@@ -1,4 +1,4 @@
-# ProxLink
+# nullprox
 
 ![ProxLink, homelab control in your pocket](./public/nullprox-banner.png)
 
