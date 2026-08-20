@@ -1,6 +1,6 @@
 # ProxLink
 
-![ProxLink, homelab control in your pocket](./public/proxlink-collage.png)
+![ProxLink, homelab control in your pocket](./public/nullprox-banner.png)
 
 A mobile PWA for managing Proxmox VE hosts from your phone. Self hosted,
 built to run as an LXC on Proxmox itself.

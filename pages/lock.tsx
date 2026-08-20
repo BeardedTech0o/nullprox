@@ -51,16 +51,14 @@ export default function LockPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-5 py-8">
-      <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-card">
-        <Image
-          src="/proxlink-collage.png"
-          alt="ProxLink"
-          width={850}
-          height={450}
-          priority
-          className="w-full h-auto"
-        />
-      </div>
+      <Image
+        src="/nullprox-banner.png"
+        alt="ProxLink"
+        width={2400}
+        height={760}
+        priority
+        className="w-full max-w-sm h-auto"
+      />
       <form
         onSubmit={submit}
         className="card w-full max-w-sm flex flex-col gap-4 animate-fade-in"
