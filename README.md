@@ -40,7 +40,7 @@ feature failure almost always traces back to a missing privilege here.
 The LXC installer is the quickest path. Run it on a Proxmox host:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/BeardedTech0o/prox-link/main/scripts/install-lxc.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/BeardedTech0o/nullprox/main/scripts/install-lxc.sh)"
 ```
 
 Tunable through env vars: `CTID`, `CT_HOSTNAME`, `DISK_GB`, `RAM_MB`,
@@ -49,7 +49,7 @@ Tunable through env vars: `CTID`, `CT_HOSTNAME`, `DISK_GB`, `RAM_MB`,
 Or deploy manually on any Docker host:
 
 ```bash
-git clone https://github.com/beardedtech0o/prox-link.git && cd prox-link
+git clone https://github.com/beardedtech0o/nullprox.git && cd nullprox
 docker compose up -d --build
 ```
 
