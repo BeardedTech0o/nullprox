@@ -1,6 +1,6 @@
 {
-  "name": "ProxLink",
-  "short_name": "ProxLink",
+  "name": "nullprox",
+  "short_name": "nullprox",
   "description": "Manage your Proxmox VE hosts from your phone",
   "start_url": "/",
   "scope": "/",

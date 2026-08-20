@@ -10,6 +10,7 @@ export default function Document() {
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#e6e9ee" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="nullprox" />
         <meta
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
