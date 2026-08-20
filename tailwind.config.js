@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class',
   content: [
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
@@ -18,7 +17,6 @@ module.exports = {
         accent: {
           DEFAULT: 'rgb(var(--c-accent)       / <alpha-value>)',
           dim: 'rgb(var(--c-accent)       / 0.12)',
-          hover: 'rgb(var(--c-accent-hover) / <alpha-value>)',
         },
         success: 'rgb(var(--c-success) / <alpha-value>)',
         warning: 'rgb(var(--c-warning) / <alpha-value>)',
@@ -30,20 +28,30 @@ module.exports = {
         'data-orange': 'rgb(var(--c-data-orange) / <alpha-value>)',
       },
       fontFamily: {
-        sans: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ['Google Sans Flex', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
       },
       borderRadius: {
-        // Deliberate scale, not "everything rounded": small elements/inputs,
-        // buttons/medium tiles, large cards/tiles. Pills (chips, toggles,
-        // badges, icon-only buttons) use Tailwind's default `rounded-full`.
-        xl: '1.1rem',
-        '2xl': '1.4rem',
-        '3xl': '1.85rem',
+        // nullxx design system, v1: card 22px, control 13px, badge 20px,
+        // progress 6px. `xl`/`2xl` both collapse onto the single control
+        // radius, since the app doesn't otherwise distinguish "small" vs
+        // "medium" controls (inputs vs buttons/tiles) — everything
+        // interactive uses one of the two. Pills (chips, icon-only
+        // buttons) keep Tailwind's default `rounded-full`.
+        xl: '13px',
+        '2xl': '13px',
+        '3xl': '22px',
+        badge: '20px',
+        progress: '6px',
       },
       boxShadow: {
-        card: '0 1px 2px 0 rgba(16,24,40,0.04), 0 6px 20px -4px rgba(16,24,40,0.06)',
-        'card-hover': '0 4px 16px rgba(0,0,0,0.12), 0 0 0 1px rgb(var(--c-accent) / 0.3)',
+        card: '2px 2px 5px rgb(var(--c-shadow-dark)), -2px -2px 5px rgb(var(--c-shadow-light))',
+        'card-inset':
+          'inset 1px 1px 2px rgb(var(--c-shadow-dark)), inset -1px -1px 2px rgb(var(--c-shadow-light))',
+        'card-hover':
+          '0 4px 16px rgb(var(--c-shadow-dark) / 0.6), 0 0 0 1px rgb(var(--c-accent) / 0.3)',
+        control:
+          '2px 2px 4px rgb(var(--c-shadow-dark)), -2px -2px 4px rgb(var(--c-shadow-light))',
         glow: '0 0 20px rgb(var(--c-accent) / 0.25)',
       },
       keyframes: {

@@ -82,7 +82,7 @@ export function StatusBadge({ status }: { status?: string }) {
   const cls = STATUS_STYLES[s] || 'bg-elevated text-secondary border-border';
   return (
     <span
-      className={`px-2.5 py-0.5 rounded-full text-xs font-medium border shrink-0 whitespace-nowrap ${cls}`}
+      className={`px-2.5 py-0.5 rounded-badge text-xs font-medium border shrink-0 whitespace-nowrap ${cls}`}
     >
       {s}
     </span>
@@ -107,11 +107,11 @@ export function TaskProgress({ stage }: { stage: string }) {
   return (
     <div className="flex flex-col gap-2" role="status" aria-live="polite">
       <div
-        className="h-2 w-full rounded-full bg-elevated overflow-hidden"
+        className="h-2 w-full rounded-progress bg-elevated overflow-hidden"
         role="progressbar"
         aria-valuetext={stage}
       >
-        <div className="h-full w-1/3 rounded-full bg-accent animate-progress-indeterminate" />
+        <div className="h-full w-1/3 rounded-progress bg-accent animate-progress-indeterminate" />
       </div>
       <p className="text-sm text-secondary truncate">{stage}</p>
     </div>

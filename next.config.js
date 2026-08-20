@@ -10,7 +10,7 @@ const ContentSecurityPolicy = [
   "frame-ancestors 'none'",
   "object-src 'none'",
   // Next.js injects small inline bootstrap scripts; 'unsafe-inline' is required for the
-  // styled-jsx / theme-init bootstrap. Kept as tight as Next allows.
+  // styled-jsx bootstrap. Kept as tight as Next allows.
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
