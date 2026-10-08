@@ -1,8 +1,12 @@
 name: Release
 
+# Publishes a GitHub release (and its tag) whenever the version in
+# package.json changes on main and no release exists for it yet.
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths: [package.json]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,4 +19,10 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --generate-notes --title "$GITHUB_REF_NAME"
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          if gh release view "$version" >/dev/null 2>&1; then
+            echo "$version already released"
+          else
+            gh release create "$version" --target "$GITHUB_SHA" --generate-notes --title "$version"
+          fi
