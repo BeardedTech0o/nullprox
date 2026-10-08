@@ -11,13 +11,17 @@ module.exports = {
         base: 'rgb(var(--c-base)     / <alpha-value>)',
         surface: 'rgb(var(--c-surface)  / <alpha-value>)',
         elevated: 'rgb(var(--c-elevated) / <alpha-value>)',
-        border: 'rgb(var(--c-border)   / <alpha-value>)',
+        border: {
+          DEFAULT: 'rgb(var(--c-border)   / <alpha-value>)',
+          strong: 'rgb(var(--c-border-strong) / <alpha-value>)',
+        },
         primary: 'rgb(var(--c-primary)  / <alpha-value>)',
         secondary: 'rgb(var(--c-secondary)/ <alpha-value>)',
         accent: {
           DEFAULT: 'rgb(var(--c-accent)       / <alpha-value>)',
-          dim: 'rgb(var(--c-accent)       / 0.12)',
+          dim: 'rgb(var(--c-accent)       / 0.08)',
         },
+        'on-accent': 'rgb(var(--c-on-accent) / <alpha-value>)',
         success: 'rgb(var(--c-success) / <alpha-value>)',
         warning: 'rgb(var(--c-warning) / <alpha-value>)',
         danger: {
@@ -28,31 +32,26 @@ module.exports = {
         'data-orange': 'rgb(var(--c-data-orange) / <alpha-value>)',
       },
       fontFamily: {
-        sans: ['Google Sans Flex', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+        sans: 'var(--font-sans)',
+        mono: 'var(--font-mono)',
       },
       borderRadius: {
-        // nullxx design system, v1: card 22px, control 13px, badge 20px,
-        // progress 6px. `xl`/`2xl` both collapse onto the single control
-        // radius, since the app doesn't otherwise distinguish "small" vs
-        // "medium" controls (inputs vs buttons/tiles) — everything
-        // interactive uses one of the two. Pills (chips, icon-only
-        // buttons) keep Tailwind's default `rounded-full`.
-        xl: '13px',
-        '2xl': '13px',
-        '3xl': '22px',
-        badge: '20px',
-        progress: '6px',
+        // Nullobj design system: pill-shaped controls (buttons, tiles, chips),
+        // 12px inputs, 18px cards. `2xl` is the pill used by every button.
+        xl: '12px',
+        '2xl': '999px',
+        '3xl': '18px',
+        badge: '999px',
+        progress: '999px',
       },
+      // Nullobj: no shadows on cards. Keys are kept so existing class names
+      // resolve; interactive cards get a foreground ring on hover instead.
       boxShadow: {
-        card: '2px 2px 5px rgb(var(--c-shadow-dark)), -2px -2px 5px rgb(var(--c-shadow-light))',
-        'card-inset':
-          'inset 1px 1px 2px rgb(var(--c-shadow-dark)), inset -1px -1px 2px rgb(var(--c-shadow-light))',
-        'card-hover':
-          '0 4px 16px rgb(var(--c-shadow-dark) / 0.6), 0 0 0 1px rgb(var(--c-accent) / 0.3)',
-        control:
-          '2px 2px 4px rgb(var(--c-shadow-dark)), -2px -2px 4px rgb(var(--c-shadow-light))',
-        glow: '0 0 20px rgb(var(--c-accent) / 0.25)',
+        card: 'none',
+        'card-inset': 'none',
+        'card-hover': '0 0 0 1px rgb(var(--c-primary))',
+        control: 'none',
+        glow: 'none',
       },
       keyframes: {
         'slide-in': {

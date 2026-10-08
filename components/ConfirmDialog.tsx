@@ -57,7 +57,7 @@ export default function ConfirmDialog({
               autoFocus
               value={typed}
               onChange={(e) => setTyped(e.target.value)}
-              className="w-full px-3 py-2 bg-surface rounded-xl border border-border text-sm outline-none focus:ring-2 focus:ring-accent/50 focus:border-transparent transition-colors"
+              className="w-full px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-colors"
             />
           </div>
         )}
@@ -73,7 +73,7 @@ export default function ConfirmDialog({
             onClick={onConfirm}
             disabled={blocked || busy}
             className={`px-4 py-2 rounded-2xl text-sm font-medium transition-opacity disabled:opacity-40 ${
-              danger ? 'bg-danger text-white' : 'bg-accent text-gray-950'
+              danger ? 'bg-danger text-on-accent' : 'bg-accent text-on-accent'
             } hover:opacity-90`}
           >
             {busy ? 'Working…' : confirmLabel}

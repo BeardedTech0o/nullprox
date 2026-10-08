@@ -14,7 +14,7 @@ interface Snap {
 }
 
 const inputCls =
-  'w-full px-3 py-2 bg-surface rounded-xl border border-border text-sm outline-none focus:ring-2 focus:ring-accent/50 focus:border-transparent';
+  'w-full px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20';
 
 export default function Snapshots({
   hostId,
@@ -120,7 +120,7 @@ export default function Snapshots({
             <button
               onClick={() => create.mutate()}
               disabled={!name || create.isPending}
-              className="px-4 py-2 rounded-2xl bg-accent text-gray-950 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center gap-2"
+              className="px-4 py-2 rounded-2xl bg-accent text-on-accent text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center gap-2"
             >
               {create.isPending && <Spinner size={16} />} Create
             </button>

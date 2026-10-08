@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Self-hosted so icons never depend on reaching Google's CDN (self-hosted
+/* Self-hosted so icons and type never depend on reaching a CDN (self-hosted
    deployments may have restricted/filtered outbound network access). */
 @font-face {
   font-family: 'Material Symbols Rounded';
@@ -12,43 +12,112 @@
   src: url('/fonts/material-symbols-rounded.woff2') format('woff2');
 }
 
-/* Same self-hosting rationale as Material Symbols above — nullxx design
-   system v1 locks Google Sans Flex as the body face. It's a variable font
-   (single file covers the whole 100–900 weight axis). */
+/* Nullobj design system: one variable typeface, Inter Tight. */
 @font-face {
-  font-family: 'Google Sans Flex';
+  font-family: 'Inter Tight Variable';
   font-style: normal;
-  font-weight: 100 900;
   font-display: swap;
-  src: url('/fonts/google-sans-flex.woff2') format('woff2');
+  font-weight: 100 900;
+  src: url('/fonts/inter-tight-cyrillic-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Inter Tight Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-tight-cyrillic-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Inter Tight Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-tight-greek-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: 'Inter Tight Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-tight-greek-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Inter Tight Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-tight-vietnamese-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Inter Tight Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-tight-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Inter Tight Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-tight-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* nullxx design system, v1 — see design/README.md, tokens.json.
-   Light mode only for now: the neumorphic style depends on surface and
-   shadow colours matching closely, so dark mode needs its own locked
-   palette rather than an inverted light mode (not yet defined upstream). */
+/* Nullobj design system: pure black on pure white, no colour accents, no
+   shadows on cards. Theme lives on <html data-theme="light|dark">, set before
+   first paint by the inline script in pages/_document.tsx. Colours are RGB
+   triplets so Tailwind's alpha modifiers keep working. */
 :root {
-  --c-base: 230 233 238; /* #e6e9ee — page bg */
-  --c-surface: 230 233 238; /* #e6e9ee — same as base: neumorphic cards are
-    distinguished by shadow, not by a lighter fill */
-  /* Reuses the locked shadow-dark token as the fill for recessed/hover
-     surfaces (inputs, hover states, skeletons) — nullxx doesn't define a
-     separate "elevated" colour, and this keeps the value inside the locked
-     palette instead of inventing a new one. */
-  --c-elevated: var(--c-shadow-dark);
-  --c-border: 211 215 221; /* #d3d7dd — border.hairline */
-  --c-primary: 58 63 74; /* #3a3f4a — text.primary */
-  --c-secondary: 118 124 136; /* #767c88 — text.secondary */
-  --c-accent: 47 138 138; /* #2f8a8a — accent.teal */
-  --c-shadow-dark: 204 208 214; /* #ccd0d6 */
-  --c-shadow-light: 255 255 255; /* #ffffff */
-  /* Not covered by nullxx tokens.json yet (semantic + chart colours) —
-     kept from the previous palette rather than improvised. */
-  --c-success: 16 185 129;
-  --c-warning: 245 158 11;
-  --c-danger: 239 68 68;
-  --c-data-cyan: 0 229 255;
-  --c-data-orange: 255 145 0;
+  --c-base: 255 255 255; /* --bg */
+  --c-surface: 255 255 255;
+  --c-elevated: 245 245 245; /* --wash */
+  --c-border: 230 230 230; /* --line */
+  --c-border-strong: 207 207 207; /* --line-strong */
+  --c-primary: 10 10 10; /* --fg */
+  --c-secondary: 106 106 106; /* --muted */
+  --c-faint: 154 154 154;
+  --c-accent: 10 10 10; /* the accent is the foreground colour */
+  --c-on-accent: 255 255 255;
+  --c-success: 19 138 74;
+  --c-warning: 183 121 31;
+  --c-danger: 196 38 43;
+  --c-data-cyan: 10 10 10;
+  --c-data-orange: 106 106 106;
+  --font-sans: 'Inter Tight Variable', 'Inter Tight', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+  --tracking-tight: -0.03em;
+  --tracking-caps: 0.06em;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --c-base: 10 10 10;
+  --c-surface: 15 15 15;
+  --c-elevated: 20 20 20;
+  --c-border: 36 36 36;
+  --c-border-strong: 58 58 58;
+  --c-primary: 244 244 244;
+  --c-secondary: 155 155 155;
+  --c-faint: 111 111 111;
+  --c-accent: 244 244 244;
+  --c-on-accent: 10 10 10;
+  --c-success: 76 208 139;
+  --c-warning: 232 177 74;
+  --c-danger: 255 123 127;
+  --c-data-cyan: 244 244 244;
+  --c-data-orange: 155 155 155;
+  color-scheme: dark;
 }
 
 html {
@@ -66,18 +135,45 @@ html {
 }
 
 body {
-  font-family: 'Google Sans Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   color: rgb(var(--c-primary));
   background-color: rgb(var(--c-base));
-  background-image: radial-gradient(
-      ellipse at 18% 0%,
-      rgb(var(--c-accent) / 0.05) 0%,
-      transparent 55%
-    ),
-    radial-gradient(ellipse at 82% 100%, rgb(var(--c-accent) / 0.03) 0%, transparent 45%);
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 650;
+  letter-spacing: var(--tracking-tight);
+}
+
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid rgb(var(--c-primary));
+  outline-offset: 3px;
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+::selection {
+  background: rgb(var(--c-primary));
+  color: rgb(var(--c-base));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
 
 /* iOS Safari auto-zooms the page when a focused text input's computed
@@ -97,20 +193,23 @@ body {
 }
 
 @layer components {
+  /* Cards are hairline-bordered, never shadowed. */
   .card {
-    @apply bg-surface rounded-3xl shadow-card p-5;
+    @apply bg-surface rounded-3xl border border-border p-5;
   }
   .panel {
-    @apply bg-surface rounded-3xl shadow-card;
+    @apply bg-surface rounded-3xl border border-border;
   }
   .panel-elevated {
-    @apply bg-elevated rounded-3xl shadow-card-inset;
+    @apply bg-elevated rounded-3xl border border-border;
   }
   .btn-ghost {
     @apply px-3 py-1.5 rounded-full hover:bg-elevated transition-colors cursor-pointer;
   }
+  /* Tiny letter-spaced caps for utility text. */
   .stat-label {
-    @apply text-xs font-medium text-secondary uppercase tracking-wide;
+    @apply text-[11px] font-bold text-secondary uppercase;
+    letter-spacing: var(--tracking-caps);
   }
   .skeleton {
     @apply bg-elevated rounded animate-pulse;

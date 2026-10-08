@@ -22,7 +22,9 @@ export default function Nav() {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:w-60 md:bg-surface md:border-r md:border-border md:z-30">
-        <div className="px-5 py-5">
+        <div className="px-5 py-5 flex items-center gap-2.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/nullprox.svg" alt="" width={28} height={28} className="rounded-lg ring-1 ring-border-strong" />
           <span className="text-xl font-bold tracking-tight">nullprox</span>
         </div>
         <nav className="flex-1 flex flex-col gap-1 px-3">
@@ -53,7 +55,7 @@ export default function Nav() {
               <Link
                 key={t.href}
                 href={t.href}
-                className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition-colors ${
+                className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition-colors ${
                   active ? 'text-accent' : 'text-secondary hover:text-primary'
                 }`}
               >

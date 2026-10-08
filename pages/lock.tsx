@@ -1,8 +1,6 @@
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import Icon from '@/components/Icon';
 import { Spinner } from '@/components/ui';
 import { api, ApiError } from '@/lib/client/fetcher';
 
@@ -51,22 +49,22 @@ export default function LockPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-5 py-8">
-      <Image
-        src="/nullprox-banner.png"
-        alt="nullprox"
-        width={2400}
-        height={760}
-        priority
-        className="w-full max-w-sm h-auto"
-      />
+      <div className="flex flex-col items-center gap-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/icons/nullprox.svg"
+          alt="nullprox"
+          width={96}
+          height={96}
+          className="h-24 w-24 rounded-[22px] ring-1 ring-border-strong"
+        />
+        <span className="text-3xl font-bold tracking-tight">nullprox</span>
+      </div>
       <form
         onSubmit={submit}
         className="card w-full max-w-sm flex flex-col gap-4 animate-fade-in"
       >
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="h-14 w-14 rounded-2xl bg-accent/[0.12] grid place-items-center">
-            <Icon name={isSetup ? 'lock_open' : 'lock'} size={30} className="text-accent" />
-          </div>
           <p className="text-sm text-secondary">
             {isSetup
               ? 'Choose a PIN or passphrase. It encrypts your stored Proxmox tokens — there is no recovery if you forget it.'
@@ -82,7 +80,7 @@ export default function LockPage() {
           placeholder="PIN or passphrase"
           value={pin}
           onChange={(e) => setPin(e.target.value)}
-          className="w-full px-3 py-2.5 bg-surface rounded-xl border border-border text-sm outline-none focus:ring-2 focus:ring-accent/50 focus:border-transparent transition-colors"
+          className="w-full px-3 py-2.5 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-colors"
         />
         {isSetup && (
           <input
@@ -91,7 +89,7 @@ export default function LockPage() {
             placeholder="Confirm PIN"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="w-full px-3 py-2.5 bg-surface rounded-xl border border-border text-sm outline-none focus:ring-2 focus:ring-accent/50 focus:border-transparent transition-colors"
+            className="w-full px-3 py-2.5 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-colors"
           />
         )}
 
@@ -105,7 +103,7 @@ export default function LockPage() {
         <button
           type="submit"
           disabled={busy || !pin || (data?.lockedForMs ?? 0) > 0}
-          className="px-4 py-2.5 rounded-2xl bg-accent text-gray-950 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
+          className="px-4 py-2.5 rounded-2xl bg-accent text-on-accent text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
         >
           {busy && <Spinner size={16} />}
           {isSetup ? 'Create & continue' : 'Unlock'}

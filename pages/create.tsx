@@ -17,9 +17,9 @@ interface ContentRow {
 }
 
 const inputCls =
-  'w-full px-3 py-2 bg-surface rounded-xl border border-border text-sm outline-none focus:ring-2 focus:ring-accent/50 focus:border-transparent';
+  'w-full px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20';
 const selectCls =
-  'w-full px-3 py-2 bg-surface rounded-xl border border-border text-sm outline-none focus:ring-2 focus:ring-accent/50';
+  'w-full px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20';
 
 export default function CreatePage() {
   const router = useRouter();
@@ -428,7 +428,7 @@ export default function CreatePage() {
                 <button
                   onClick={() => create.mutate()}
                   disabled={!canCreate || create.isPending || taskRunning}
-                  className="px-4 py-2.5 rounded-2xl bg-accent text-gray-950 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
+                  className="px-4 py-2.5 rounded-2xl bg-accent text-on-accent text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
                 >
                   {create.isPending && <Spinner size={16} />} Create {type === 'qemu' ? 'VM' : 'container'}
                 </button>

@@ -79,7 +79,7 @@ export default function NodeConsolePage() {
           cursorBlink: true,
           fontFamily: 'JetBrains Mono, monospace',
           fontSize: 13,
-          theme: { background: '#0b0f14' },
+          theme: { background: '#0a0a0a' },
         });
         const fit = new FitAddon();
         term.loadAddon(fit);
