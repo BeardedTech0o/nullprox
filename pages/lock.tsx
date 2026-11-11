@@ -80,7 +80,7 @@ export default function LockPage() {
           placeholder="PIN or passphrase"
           value={pin}
           onChange={(e) => setPin(e.target.value)}
-          className="w-full px-3 py-2.5 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-colors"
+          className="w-full px-3 py-2.5 bg-elevated rounded-xl border border-transparent text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-colors"
         />
         {isSetup && (
           <input
@@ -89,7 +89,7 @@ export default function LockPage() {
             placeholder="Confirm PIN"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="w-full px-3 py-2.5 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-colors"
+            className="w-full px-3 py-2.5 bg-elevated rounded-xl border border-transparent text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-colors"
           />
         )}
 
@@ -103,7 +103,7 @@ export default function LockPage() {
         <button
           type="submit"
           disabled={busy || !pin || (data?.lockedForMs ?? 0) > 0}
-          className="px-4 py-2.5 rounded-2xl bg-accent text-on-accent text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
+          className="px-4 py-2.5 rounded-full bg-inverse text-on-inverse text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
         >
           {busy && <Spinner size={16} />}
           {isSetup ? 'Create & continue' : 'Unlock'}

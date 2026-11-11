@@ -27,10 +27,10 @@ function GuestCard({ g }: { g: GuestRow }) {
       // flex item's default min-width:auto — Safari/iOS doesn't always agree
       // with Chromium on that, which was letting this row render wider than
       // the screen instead of truncating the guest name.
-      className="card grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 hover:shadow-card-hover transition-shadow"
+      className="card !py-3.5 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 hover:shadow-card-hover transition-shadow"
     >
-      <div className="h-10 w-10 rounded-2xl bg-accent/[0.08] grid place-items-center">
-        <Icon name={type === 'lxc' ? 'deployed_code' : 'computer'} className="text-accent" />
+      <div className="h-10 w-10 icon-badge">
+        <Icon name={type === 'lxc' ? 'deployed_code' : 'computer'} />
       </div>
       <div className="min-w-0 overflow-hidden">
         <div className="flex items-center gap-2 min-w-0">
@@ -43,6 +43,28 @@ function GuestCard({ g }: { g: GuestRow }) {
       </div>
       <StatusBadge status={g.status} />
     </Link>
+  );
+}
+
+// The screen's one gradient surface: running guests as the big number, with
+// host and total counts as frosted chips.
+function Hero({ running, total, hosts }: { running: number; total: number; hosts: number }) {
+  return (
+    <section className="hero">
+      <p className="text-sm font-semibold opacity-80">Running now</p>
+      <p className="big-number text-[4.5rem] mt-3">
+        {running}
+        <span className="dim text-3xl ml-2 tracking-tight">of {total}</span>
+      </p>
+      <div className="flex flex-wrap gap-2 mt-5">
+        <span className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold">
+          {hosts} host{hosts === 1 ? '' : 's'}
+        </span>
+        <span className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold">
+          {total - running} stopped
+        </span>
+      </div>
+    </section>
   );
 }
 
@@ -62,7 +84,7 @@ export default function Dashboard() {
         }
         actions={
           hostsQ.data && hostsQ.data.length > 0 ? (
-            <Link href="/create" aria-label="Create guest" className="btn-ghost text-accent flex items-center">
+            <Link href="/create" aria-label="Create guest" className="icon-circle h-10 w-10 text-accent">
               <Icon name="add" size={24} />
             </Link>
           ) : undefined
@@ -81,7 +103,7 @@ export default function Dashboard() {
             action={
               <Link
                 href="/hosts/new"
-                className="px-4 py-2 rounded-2xl bg-accent text-on-accent text-sm font-medium hover:opacity-90 transition-opacity"
+                className="px-4 py-2 rounded-full bg-inverse text-on-inverse text-sm font-medium hover:opacity-90 transition-opacity"
               >
                 Add a host
               </Link>
@@ -95,18 +117,21 @@ export default function Dashboard() {
             {guestsQ.data?.errors.map((e) => (
               <div
                 key={e}
-                className="card !p-3 flex items-center gap-2 text-sm text-warning border border-warning/20"
+                className="card !p-3 flex items-center gap-2 text-sm text-warning"
               >
                 <Icon name="warning" size={18} /> {e}
               </div>
             ))}
             {guestsQ.data && (
-              <div className="flex flex-col gap-4">
+              <Hero running={running} total={guestsQ.data.guests.length} hosts={hostsQ.data.length} />
+            )}
+            {guestsQ.data && (
+              <div className="flex flex-col gap-3">
                 {hostsQ.data.map((h) => {
                   const guestsForHost = guestsQ.data!.guests.filter((g) => g.hostId === h.id);
                   return (
-                    <section key={h.id} className="panel p-4 flex flex-col gap-3">
-                      <h2 className="stat-label">{h.name}</h2>
+                    <section key={h.id} className="flex flex-col gap-3">
+                      <h2 className="stat-label px-2">{h.name}</h2>
                       {guestsForHost.length === 0 ? (
                         <p className="text-sm text-secondary">No guests on this host.</p>
                       ) : (

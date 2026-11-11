@@ -30,19 +30,19 @@ export default function AppBar({ title, subtitle, back, actions }: AppBarProps) 
   }
 
   return (
-    <header className="sticky top-0 z-20 bg-base/80 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
+    <header className="sticky top-0 z-20 bg-base/80 backdrop-blur-md pt-[env(safe-area-inset-top)]">
       <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
         {back && (
           <button
             onClick={goBack}
             aria-label="Go back"
-            className="btn-ghost -ml-2 flex items-center text-secondary hover:text-primary"
+            className="icon-circle h-10 w-10 -ml-1 text-secondary hover:text-primary transition-colors"
           >
             <Icon name="arrow_back" size={22} />
           </button>
         )}
         <div className="min-w-0 flex-1">
-          <h1 className="text-lg font-bold tracking-tight truncate">{title}</h1>
+          <h1 className="text-xl font-bold tracking-tight truncate">{title}</h1>
           {subtitle && (
             <p className="text-xs text-secondary truncate mt-0.5">{subtitle}</p>
           )}
@@ -52,7 +52,7 @@ export default function AppBar({ title, subtitle, back, actions }: AppBarProps) 
           onClick={hardRefresh}
           aria-label="Refresh"
           aria-busy={fetching > 0}
-          className="btn-ghost flex items-center text-secondary hover:text-accent"
+          className="icon-circle h-10 w-10 text-secondary hover:text-accent transition-colors"
         >
           <Icon
             name="refresh"

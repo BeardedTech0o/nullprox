@@ -15,7 +15,7 @@ interface FormState {
 }
 
 const inputCls =
-  'w-full px-3 py-2.5 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-colors';
+  'w-full px-3 py-2.5 bg-elevated rounded-xl border border-transparent text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-colors';
 
 export default function NewHostPage() {
   const router = useRouter();
@@ -125,7 +125,7 @@ export default function NewHostPage() {
             <button
               onClick={() => test.mutate()}
               disabled={test.isPending || !form.baseUrl || !form.tokenId || !form.secret}
-              className="btn-ghost border border-border text-sm flex items-center gap-2 disabled:opacity-40"
+              className="btn-secondary flex items-center gap-2 disabled:opacity-40"
             >
               {test.isPending ? <Spinner size={16} /> : <Icon name="wifi_tethering" size={18} />}
               Test connection
@@ -133,7 +133,7 @@ export default function NewHostPage() {
             <button
               onClick={() => save.mutate()}
               disabled={save.isPending || !form.name || !form.baseUrl || !form.tokenId || !form.secret}
-              className="px-4 py-2 rounded-2xl bg-accent text-on-accent text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center gap-2 ml-auto"
+              className="px-4 py-2 rounded-full bg-inverse text-on-inverse text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center gap-2 ml-auto"
             >
               {save.isPending && <Spinner size={16} />}
               Save host

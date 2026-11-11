@@ -15,7 +15,7 @@ function apply(choice: Choice) {
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
   document
     .querySelector('meta[name=theme-color]')
-    ?.setAttribute('content', dark ? '#0a0a0a' : '#ffffff');
+    ?.setAttribute('content', dark ? '#0c0a09' : '#e6e4e1');
 }
 
 // Segmented light / dark / system picker. The choice is stored in
@@ -55,7 +55,7 @@ export default function ThemeSelect() {
     <div
       role="radiogroup"
       aria-label="Theme"
-      className="inline-flex gap-1 p-1 rounded-full bg-elevated border border-border w-fit"
+      className="inline-flex gap-1 p-1 rounded-full bg-elevated w-fit"
     >
       {OPTIONS.map((o) => (
         <button
@@ -64,9 +64,9 @@ export default function ThemeSelect() {
           role="radio"
           aria-checked={choice === o.value}
           onClick={() => pick(o.value)}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
             choice === o.value
-              ? 'bg-accent text-on-accent'
+              ? 'bg-inverse text-on-inverse'
               : 'text-secondary hover:text-primary'
           }`}
         >

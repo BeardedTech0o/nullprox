@@ -18,7 +18,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   return (
     <>
       <Nav />
-      <div className="md:pl-60">{children}</div>
+      <div className="md:pl-[15.5rem]">{children}</div>
     </>
   );
 }

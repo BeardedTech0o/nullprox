@@ -12,11 +12,14 @@ module.exports = {
         surface: 'rgb(var(--c-surface)  / <alpha-value>)',
         elevated: 'rgb(var(--c-elevated) / <alpha-value>)',
         border: {
-          DEFAULT: 'rgb(var(--c-border)   / <alpha-value>)',
-          strong: 'rgb(var(--c-border-strong) / <alpha-value>)',
+          DEFAULT: 'rgb(var(--c-border) / calc(var(--a-border) * <alpha-value>))',
+          strong: 'rgb(var(--c-border-strong) / calc(var(--a-border-strong) * <alpha-value>))',
         },
         primary: 'rgb(var(--c-primary)  / <alpha-value>)',
-        secondary: 'rgb(var(--c-secondary)/ <alpha-value>)',
+        secondary: 'rgb(var(--c-secondary) / calc(var(--a-secondary) * <alpha-value>))',
+        faint: 'rgb(var(--c-faint) / calc(var(--a-faint) * <alpha-value>))',
+        inverse: 'rgb(var(--c-inverse) / <alpha-value>)',
+        'on-inverse': 'rgb(var(--c-on-inverse) / <alpha-value>)',
         accent: {
           DEFAULT: 'rgb(var(--c-accent)       / <alpha-value>)',
           dim: 'rgb(var(--c-accent)       / 0.08)',
@@ -36,22 +39,21 @@ module.exports = {
         mono: 'var(--font-mono)',
       },
       borderRadius: {
-        // Nullobj design system: pill-shaped controls (buttons, tiles, chips),
-        // 12px inputs, 18px cards. `2xl` is the pill used by every button.
-        xl: '12px',
+        // Warm ember glass: pills for controls, 26px cards, 32px hero surfaces.
+        xl: '16px',
         '2xl': '999px',
-        '3xl': '18px',
+        '3xl': '26px',
+        hero: '32px',
         badge: '999px',
         progress: '999px',
       },
-      // Nullobj: no shadows on cards. Keys are kept so existing class names
-      // resolve; interactive cards get a foreground ring on hover instead.
+      // Soft warm shadows in light, a 1px inner highlight in dark (see tokens).
       boxShadow: {
-        card: 'none',
+        card: 'var(--shadow-card)',
         'card-inset': 'none',
-        'card-hover': '0 0 0 1px rgb(var(--c-primary))',
+        'card-hover': 'var(--shadow-card), 0 0 0 1px rgb(var(--c-primary) / 0.12)',
         control: 'none',
-        glow: 'none',
+        glow: 'var(--hero-glow)',
       },
       keyframes: {
         'slide-in': {
@@ -71,8 +73,8 @@ module.exports = {
         },
       },
       animation: {
-        'slide-in': 'slide-in 0.15s ease-out',
-        'fade-in': 'fade-in  0.2s  ease-out',
+        'slide-in': 'slide-in 0.2s cubic-bezier(.2,.7,.2,1)',
+        'fade-in': 'fade-in 350ms cubic-bezier(.2,.7,.2,1)',
         'progress-indeterminate': 'progress-indeterminate 1.1s ease-in-out infinite',
       },
     },

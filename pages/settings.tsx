@@ -23,7 +23,7 @@ export default function SettingsPage() {
         <section className="card flex flex-col gap-3">
           <h2 className="font-semibold">Appearance</h2>
           <p className="text-sm text-secondary">
-            Pure black on white, or the reverse. System follows your device.
+            Light, dark, or whatever your device uses.
           </p>
           <ThemeSelect />
         </section>
@@ -36,7 +36,7 @@ export default function SettingsPage() {
           </p>
           <button
             onClick={lockNow}
-            className="px-4 py-2 rounded-2xl bg-elevated border border-border text-sm font-medium hover:border-primary transition-colors flex items-center gap-2 w-fit"
+            className="btn-secondary w-fit"
           >
             <Icon name="lock" size={18} /> Lock now
           </button>

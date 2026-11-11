@@ -32,8 +32,8 @@ function HostRow({ h, onDelete }: { h: PublicHost; onDelete: (h: PublicHost) => 
   return (
     <div className="card flex flex-col gap-3">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-3">
-        <div className="h-10 w-10 rounded-2xl bg-accent/[0.08] grid place-items-center">
-          <Icon name="dns" className="text-accent" />
+        <div className="h-10 w-10 icon-badge">
+          <Icon name="dns" />
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className="font-semibold truncate">{h.name}</div>
@@ -57,7 +57,7 @@ function HostRow({ h, onDelete }: { h: PublicHost; onDelete: (h: PublicHost) => 
       </div>
 
       {showNodes && (
-        <div className="flex flex-col gap-1.5 border-t border-border pt-3">
+        <div className="flex flex-col gap-1.5 pt-3">
           {nodesQ.isLoading && <p className="text-xs text-secondary">Loading nodes…</p>}
           {nodesQ.isError && (
             <p className="text-xs text-danger">{(nodesQ.error as Error).message}</p>
@@ -66,7 +66,7 @@ function HostRow({ h, onDelete }: { h: PublicHost; onDelete: (h: PublicHost) => 
             <Link
               key={n.node}
               href={`/console/${h.id}/node/${n.node}`}
-              className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-elevated text-sm font-medium hover:bg-border/40 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-elevated text-sm font-medium hover:bg-primary/[0.08] transition-colors"
             >
               <Icon name="terminal" size={18} className="text-accent" />
               {n.node}
@@ -115,7 +115,7 @@ export default function HostsPage() {
             action={
               <Link
                 href="/hosts/new"
-                className="px-4 py-2 rounded-2xl bg-accent text-on-accent text-sm font-medium hover:opacity-90 transition-opacity"
+                className="px-4 py-2 rounded-full bg-inverse text-on-inverse text-sm font-medium hover:opacity-90 transition-opacity"
               >
                 Add a host
               </Link>

@@ -17,9 +17,9 @@ interface ContentRow {
 }
 
 const inputCls =
-  'w-full px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20';
+  'w-full px-3 py-2 bg-elevated rounded-xl border border-transparent text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20';
 const selectCls =
-  'w-full px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20';
+  'w-full px-3 py-2 bg-elevated rounded-xl border border-transparent text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20';
 
 export default function CreatePage() {
   const router = useRouter();
@@ -405,7 +405,7 @@ export default function CreatePage() {
                       <button
                         onClick={() => isoDownload.mutate()}
                         disabled={!isoUrl || !isoName || !isoStore || !isoNameValid || isoDownload.isPending || taskRunning}
-                        className="px-4 py-2 rounded-2xl bg-elevated text-sm font-medium hover:bg-border/40 transition-colors disabled:opacity-40 flex items-center gap-2 w-fit"
+                        className="px-4 py-2 rounded-2xl bg-elevated text-sm font-medium hover:bg-primary/[0.08] transition-colors disabled:opacity-40 flex items-center gap-2 w-fit"
                       >
                         {isoDownload.isPending && <Spinner size={16} />} Start download
                       </button>
@@ -428,7 +428,7 @@ export default function CreatePage() {
                 <button
                   onClick={() => create.mutate()}
                   disabled={!canCreate || create.isPending || taskRunning}
-                  className="px-4 py-2.5 rounded-2xl bg-accent text-on-accent text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
+                  className="px-4 py-2.5 rounded-full bg-inverse text-on-inverse text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
                 >
                   {create.isPending && <Spinner size={16} />} Create {type === 'qemu' ? 'VM' : 'container'}
                 </button>
@@ -457,7 +457,7 @@ function TaskFailure({ stage, onDismiss }: { stage?: string; onDismiss: () => vo
       <p className="text-sm text-danger">{stage || 'The task failed.'}</p>
       <button
         onClick={onDismiss}
-        className="px-3 py-1.5 rounded-2xl bg-elevated text-sm font-medium hover:bg-border/40 transition-colors w-fit"
+        className="px-3 py-1.5 rounded-2xl bg-elevated text-sm font-medium hover:bg-primary/[0.08] transition-colors w-fit"
       >
         Dismiss
       </button>

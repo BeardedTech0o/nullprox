@@ -182,8 +182,8 @@ export default function GuestDetail() {
             <div className="card flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-11 w-11 rounded-2xl bg-accent/[0.08] grid place-items-center">
-                    <Icon name={type === 'lxc' ? 'deployed_code' : 'computer'} className="text-accent" />
+                  <div className="h-11 w-11 icon-badge">
+                    <Icon name={type === 'lxc' ? 'deployed_code' : 'computer'} />
                   </div>
                   <div>
                     <div className="font-semibold">{s.node}</div>
@@ -286,7 +286,7 @@ export default function GuestDetail() {
                         if (!options) {
                           return (
                             <input
-                              className="w-full px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm font-mono outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20"
+                              className="w-full px-3 py-2 bg-elevated rounded-xl border border-transparent text-sm font-mono outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20"
                               value={edits[k] ?? ''}
                               onChange={(e) => setEdits((p) => ({ ...p, [k]: e.target.value }))}
                             />
@@ -298,7 +298,7 @@ export default function GuestDetail() {
                         const withCurrent = current && !options.includes(current) ? [current, ...options] : options;
                         return (
                           <select
-                            className="w-full px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm font-mono outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20"
+                            className="w-full px-3 py-2 bg-elevated rounded-xl border border-transparent text-sm font-mono outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20"
                             value={current}
                             onChange={(e) => setEdits((p) => ({ ...p, [k]: e.target.value }))}
                           >
@@ -325,7 +325,7 @@ export default function GuestDetail() {
                         }
                         setEdits((p) => ({ ...p, [key]: '' }));
                       }}
-                      className="w-full px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20"
+                      className="w-full px-3 py-2 bg-elevated rounded-xl border border-transparent text-sm outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20"
                     >
                       <option value="">+ Add a field…</option>
                       {fieldGroups(type).map((g) => {
@@ -348,7 +348,7 @@ export default function GuestDetail() {
                       <input
                         autoFocus
                         placeholder="Field name"
-                        className="flex-1 px-3 py-2 bg-surface rounded-xl border border-border-strong text-sm font-mono outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20"
+                        className="flex-1 px-3 py-2 bg-elevated rounded-xl border border-transparent text-sm font-mono outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20"
                         value={newFieldKey}
                         onChange={(e) => setNewFieldKey(e.target.value)}
                       />
@@ -402,7 +402,7 @@ export default function GuestDetail() {
                     <button
                       onClick={() => saveConfig.mutate()}
                       disabled={saveConfig.isPending}
-                      className="px-4 py-2 rounded-2xl bg-accent text-on-accent text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center gap-2"
+                      className="px-4 py-2 rounded-full bg-inverse text-on-inverse text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center gap-2"
                     >
                       {saveConfig.isPending && <Spinner size={16} />} Save
                     </button>
