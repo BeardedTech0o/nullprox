@@ -38,6 +38,14 @@ describe('crypto vault', () => {
     expect(() => unlockVault('old-pin', rewrapped.salt, rewrapped.wrappedDek)).toThrow();
   });
 
+  it('rejects a payload cut short inside the auth tag', () => {
+    const dek = unlockVaultFromNewPin('hunter2');
+    const full = Buffer.from(encrypt('', dek), 'base64');
+    // 12-byte IV + only 8 bytes of tag, no ciphertext.
+    const truncated = full.subarray(0, 12 + 8).toString('base64');
+    expect(() => decryptString(truncated, dek)).toThrow();
+  });
+
   it('constant-time compare matches/rejects correctly', () => {
     expect(constantTimeEqual('abc', 'abc')).toBe(true);
     expect(constantTimeEqual('abc', 'abd')).toBe(false);

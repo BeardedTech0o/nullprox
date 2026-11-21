@@ -17,6 +17,7 @@ import {
 const KEY_LEN = 32; // AES-256
 const SALT_LEN = 16;
 const IV_LEN = 12; // GCM nonce
+const TAG_LEN = 16; // full-length GCM auth tag
 const SCRYPT_PARAMS = { N: 1 << 15, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 
 export function deriveKey(pin: string, salt: Buffer): Buffer {
@@ -26,7 +27,7 @@ export function deriveKey(pin: string, salt: Buffer): Buffer {
 /** Encrypt with AES-256-GCM. Returns base64(iv | tag | ciphertext). */
 export function encrypt(plaintext: string | Buffer, key: Buffer): string {
   const iv = randomBytes(IV_LEN);
-  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const cipher = createCipheriv('aes-256-gcm', key, iv, { authTagLength: TAG_LEN });
   const data = typeof plaintext === 'string' ? Buffer.from(plaintext, 'utf8') : plaintext;
   const enc = Buffer.concat([cipher.update(data), cipher.final()]);
   const tag = cipher.getAuthTag();
@@ -37,9 +38,11 @@ export function encrypt(plaintext: string | Buffer, key: Buffer): string {
 export function decrypt(payload: string, key: Buffer): Buffer {
   const buf = Buffer.from(payload, 'base64');
   const iv = buf.subarray(0, IV_LEN);
-  const tag = buf.subarray(IV_LEN, IV_LEN + 16);
-  const enc = buf.subarray(IV_LEN + 16);
-  const decipher = createDecipheriv('aes-256-gcm', key, iv);
+  const tag = buf.subarray(IV_LEN, IV_LEN + TAG_LEN);
+  const enc = buf.subarray(IV_LEN + TAG_LEN);
+  // authTagLength makes a short or truncated payload fail instead of being
+  // checked against a tag of fewer than 16 bytes.
+  const decipher = createDecipheriv('aes-256-gcm', key, iv, { authTagLength: TAG_LEN });
   decipher.setAuthTag(tag);
   return Buffer.concat([decipher.update(enc), decipher.final()]);
 }
