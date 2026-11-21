@@ -178,8 +178,10 @@ export function probeTls(
       // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
       {
         method: 'HEAD',
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
         rejectUnauthorized: false,
-        agent: new https.Agent({ rejectUnauthorized: false }),
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
+        agent: new https.Agent({ rejectUnauthorized: false }), // own agent so this socket is never pooled
         timeout: 10000,
       },
       (res) => {
