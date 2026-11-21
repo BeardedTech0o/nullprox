@@ -172,6 +172,10 @@ export function probeTls(
   return new Promise((resolve, reject) => {
     const req = https.request(
       u,
+      // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
+      // Deliberate: this HEAD probe sends no credentials and exists only to read
+      // the peer certificate fingerprint so the user can pin it. Real API calls
+      // verify the CA chain or the pinned fingerprint (see the request builder above).
       {
         method: 'HEAD',
         rejectUnauthorized: false,

@@ -54,6 +54,8 @@ const RULES: Rule[] = [
 ];
 
 function re(s: string): RegExp {
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+  // Only called with the static pattern strings in RULES above, never request data.
   return new RegExp(s);
 }
 
